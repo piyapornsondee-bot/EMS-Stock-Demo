@@ -220,7 +220,7 @@ async function searchItems(q) {
     return;
   }
   resultsEl.innerHTML = found.map(item => `
-    <div onclick="window._selectItem(${item.item_id})"
+    <div onclick="window._selectItem('${item.item_id}')"
       style="padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:4px;border:1px solid var(--border-light);transition:background 0.15s;">
       <div style="width:32px;height:32px;background:var(--primary-50);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <span class="material-symbols-rounded" style="font-size:16px;color:var(--primary-800);">medication</span>

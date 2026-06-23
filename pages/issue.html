@@ -217,7 +217,7 @@ async function searchItems(q) {
   resultsEl.innerHTML = found.map(item => {
     const isEmpty = item.current_stock === 0;
     return `
-      <div onclick="window._selectItem(${item.item_id})"
+      <div onclick="window._selectItem('${item.item_id}')"
         style="padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:4px;border:1px solid ${isEmpty ? 'var(--color-danger-light)' : 'var(--border-light)'};transition:background 0.15s;${isEmpty ? 'opacity:0.7;' : ''}">
         <div style="width:32px;height:32px;background:var(--color-danger-light);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <span class="material-symbols-rounded" style="font-size:16px;color:var(--color-danger);">medication</span>

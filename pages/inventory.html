@@ -394,14 +394,14 @@ function render() {
                   <td style="font-size:11px;font-family:monospace;">${item.barcode}</td>
                   <td>
                     <div style="display:flex;gap:4px;">
-                      <button class="btn btn-icon btn-sm btn-ghost" onclick="viewQR(${item.item_id})" title="QR Code">
+                      <button class="btn btn-icon btn-sm btn-ghost" onclick="viewQR('${item.item_id}')" title="QR Code">
                         <span class="material-symbols-rounded" style="font-size:16px;">qr_code</span>
                       </button>
                       ${hasPermission('edit_item') ? `
-                      <button class="btn btn-icon btn-sm btn-ghost" onclick="editItem(${item.item_id})" title="แก้ไข">
+                      <button class="btn btn-icon btn-sm btn-ghost" onclick="editItem('${item.item_id}')" title="แก้ไข">
                         <span class="material-symbols-rounded" style="font-size:16px;">edit</span>
                       </button>
-                      <button class="btn btn-icon btn-sm btn-ghost" style="color:var(--color-danger);" onclick="deleteItemAction(${item.item_id})" title="ลบ">
+                      <button class="btn btn-icon btn-sm btn-ghost" style="color:var(--color-danger);" onclick="deleteItemAction('${item.item_id}')" title="ลบ">
                         <span class="material-symbols-rounded" style="font-size:16px;">delete</span>
                       </button>` : ''}
                     </div>
@@ -453,14 +453,14 @@ function renderItemCard(item) {
         </div>
       </div>
       <div class="item-card-actions">
-        <button class="btn btn-sm btn-ghost" onclick="viewQR(${item.item_id})" style="flex:1;">
+        <button class="btn btn-sm btn-ghost" onclick="viewQR('${item.item_id}')" style="flex:1;">
           <span class="material-symbols-rounded" style="font-size:15px;">qr_code</span> QR
         </button>
         ${hasPermission('edit_item') ? `
-        <button class="btn btn-sm btn-ghost" onclick="editItem(${item.item_id})" style="flex:1;">
+        <button class="btn btn-sm btn-ghost" onclick="editItem('${item.item_id}')" style="flex:1;">
           <span class="material-symbols-rounded" style="font-size:15px;">edit</span> แก้ไข
         </button>
-        <button class="btn btn-sm btn-ghost" onclick="deleteItemAction(${item.item_id})" style="flex:1;color:var(--color-danger);">
+        <button class="btn btn-sm btn-ghost" onclick="deleteItemAction('${item.item_id}')" style="flex:1;color:var(--color-danger);">
           <span class="material-symbols-rounded" style="font-size:15px;">delete</span>
         </button>` : ''}
       </div>

@@ -1,4 +1,6 @@
-/* =========================================================
+import os
+
+content = """/* =========================================================
    EMS Stock Manager — db.js (Firebase Version)
    ========================================================= */
 
@@ -94,24 +96,24 @@ export async function seedDatabase() {
     { barcode: 'EMS43', qr_code: 'EMS43', item_name: '*เข็มฉีดยาดีสโพสเซเบิ้ลเบอร์ 18x1 1/2 นิ้ว', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS44', qr_code: 'EMS44', item_name: '*เข็มฉีดยาดีสโพสเซเบิ้ลเบอร์ 20x1 1/2 นิ้ว', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS45', qr_code: 'EMS45', item_name: 'เข็มฉีดยาดีสโพสฯเบอร์ 21x1.1/2', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS46', qr_code: 'EMS46', item_name: 'เข็มฉีดยาดีสโพสเซเบิ้ล NO.22x1.5"', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS46', qr_code: 'EMS46', item_name: 'เข็มฉีดยาดีสโพสเซเบิ้ล NO.22x1.5\"', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS47', qr_code: 'EMS47', item_name: '*เข็มฉีดยาดีสโพสเซเบิ้ล เบอร์ 23x1.5 นิ้ว', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS48', qr_code: 'EMS48', item_name: '*เข็มฉีดยาดีสโพสเซเบิ้ล เบอร์ 24x1.5 นิ้ว', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS49', qr_code: 'EMS49', item_name: '*เข็มฉีดยาดีสโพสเซเบิ้ล เบอร์ 25x1 นิ้ว', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS50', qr_code: 'EMS50', item_name: '*เข็มฉีดยาดีสโพสเซเบิ้ล No. 27x1/2"', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS51', qr_code: 'EMS51', item_name: 'ไอ.วี. แคทดิเตอร์ เบอร์ 16x2 นิ้ว (16x1.77")', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS52', qr_code: 'EMS52', item_name: 'ไอ.วี.แคทดิเตอร์ 18x2"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS53', qr_code: 'EMS53', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 20 x 1 1/4"-1 1/2"(20x1.16")', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS54', qr_code: 'EMS54', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 22 x 1"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS55', qr_code: 'EMS55', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 24 x 3/4" (24x0.75") หรือ 1 1/4"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS56', qr_code: 'EMS56', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 18 x 1 1/4"-1 1/2" (18x1.16")', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS50', qr_code: 'EMS50', item_name: '*เข็มฉีดยาดีสโพสเซเบิ้ล No. 27x1/2\"', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS51', qr_code: 'EMS51', item_name: 'ไอ.วี. แคทดิเตอร์ เบอร์ 16x2 นิ้ว (16x1.77\")', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS52', qr_code: 'EMS52', item_name: 'ไอ.วี.แคทดิเตอร์ 18x2\"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS53', qr_code: 'EMS53', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 20 x 1 1/4\"-1 1/2\"(20x1.16\")', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS54', qr_code: 'EMS54', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 22 x 1\"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS55', qr_code: 'EMS55', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 24 x 3/4\" (24x0.75\") หรือ 1 1/4\"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS56', qr_code: 'EMS56', item_name: '*ไอ.วี แคทดิเตอร์ เบอร์ 18 x 1 1/4\"-1 1/2\" (18x1.16\")', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS57', qr_code: 'EMS57', item_name: 'ไอ.วี แคทดิเตอร์ เบอร์ 20x2 นิ้ว (20x1.88)', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS58', qr_code: 'EMS58', item_name: 'IV set ผู้ใหญ่ ชนิดธรรมดา', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชุด', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS59', qr_code: 'EMS59', item_name: 'สาย Extension tube 18"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS59', qr_code: 'EMS59', item_name: 'สาย Extension tube 18\"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS60', qr_code: 'EMS60', item_name: 'ทรีเวย์ Stopcock TW-0001', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS61', qr_code: 'EMS61', item_name: 'คอนเนตติ้ง ตัวตรง 7/4 มม.', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS62', qr_code: 'EMS62', item_name: 'สเคาฟ์เวนฟ์ no 21x3/4"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
-    { barcode: 'EMS63', qr_code: 'EMS63', item_name: 'สเคาฟ์เวนฟ์ no 25x3/4"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS62', qr_code: 'EMS62', item_name: 'สเคาฟ์เวนฟ์ no 21x3/4\"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
+    { barcode: 'EMS63', qr_code: 'EMS63', item_name: 'สเคาฟ์เวนฟ์ no 25x3/4\"', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 0, minimum_stock: 8, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS64', qr_code: 'EMS64', item_name: 'สำลีก้อนปราศจากเชื้อ (1ซอง มี 3 ชิ้น)', category: 'Wound Care', subcategory: 'Dressing', unit: 'ชิ้น', current_stock: 0, minimum_stock: 10, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS65', qr_code: 'EMS65', item_name: 'ไม้พันสำลีปราศจากเชื้อ (1ซอง/5ก้าน) sizeM ประมาณ6นิ้ว', category: 'Wound Care', subcategory: 'Dressing', unit: 'ชิ้น', current_stock: 0, minimum_stock: 10, location: 'EMS', item_image: '', created_date: now, updated_date: now },
     { barcode: 'EMS66', qr_code: 'EMS66', item_name: 'ผ้าก๊อซแบบสำเร็จรูป 3x4x8 พับ (5ชิ้น/ห่อ)', category: 'Wound Care', subcategory: 'Dressing', unit: 'ชิ้น', current_stock: 0, minimum_stock: 10, location: 'EMS', item_image: '', created_date: now, updated_date: now },
@@ -371,3 +373,35 @@ export async function dbPut(colName, data) {
     return docRef.id;
   }
 }
+"""
+
+with open('c:/laragon/www/EMS Stock Managment/js/db.js', 'w', encoding='utf-8') as db_file:
+    db_file.write(content)
+
+files_to_fix = [
+    'pages/inventory.html',
+    'pages/issue.html',
+    'pages/receive.html',
+    'pages/users.html'
+]
+
+for filepath in files_to_fix:
+    full_path = f"c:/laragon/www/EMS Stock Managment/{filepath}"
+    if not os.path.exists(full_path): continue
+    
+    with open(full_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    
+    # Fix inline onclicks
+    html_content = html_content.replace("onclick=\"viewQR(${item.item_id})\"", "onclick=\"viewQR('${item.item_id}')\"")
+    html_content = html_content.replace("onclick=\"editItem(${item.item_id})\"", "onclick=\"editItem('${item.item_id}')\"")
+    html_content = html_content.replace("onclick=\"deleteItemAction(${item.item_id})\"", "onclick=\"deleteItemAction('${item.item_id}')\"")
+    html_content = html_content.replace("onclick=\"window._selectItem(${item.item_id})\"", "onclick=\"window._selectItem('${item.item_id}')\"")
+    html_content = html_content.replace("onclick=\"editUser(${u.user_id})\"", "onclick=\"editUser('${u.user_id}')\"")
+    html_content = html_content.replace("onclick=\"deleteUserAction(${u.user_id})\"", "onclick=\"deleteUserAction('${u.user_id}')\"")
+    html_content = html_content.replace("onclick=\"toggleUserActive(${u.user_id})\"", "onclick=\"toggleUserActive('${u.user_id}')\"")
+
+    with open(full_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+
+print("DB and HTML files fixed")
