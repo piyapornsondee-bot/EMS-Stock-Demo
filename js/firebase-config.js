@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, enableMultiTabIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRG01zghVILK6QhJFeuOBzMRYWJMhTTOI",
@@ -12,14 +12,5 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// Enable offline caching (optional but highly recommended for offline PWA)
-enableMultiTabIndexedDbPersistence(db).catch((err) => {
-  if (err.code == 'failed-precondition') {
-    console.warn('Firebase persistence failed: Multiple tabs open');
-  } else if (err.code == 'unimplemented') {
-    console.warn('Firebase persistence not supported by browser');
-  }
-});
 
 export { app, db };

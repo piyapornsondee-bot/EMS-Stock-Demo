@@ -245,18 +245,42 @@ export async function initApp(pageTitle, pageSubtitle) {
 
   const user = getCurrentUser();
 
-  // Init DB (Firebase)
-  await seedDatabase();
+  // Init DB (Firebase) — with timeout to avoid infinite hang
+  const loader = document.getElementById('page-loader');
+  try {
+    const withTimeout = (promise, ms) =>
+      Promise.race([promise, new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Firebase timeout')), ms)
+      )]);
+
+    await withTimeout(seedDatabase(), 15000);
+  } catch (err) {
+    console.error('Firebase init error:', err);
+    if (loader) {
+      loader.innerHTML = `
+        <div style="text-align:center;color:white;padding:24px;">
+          <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+          <div style="font-size:18px;font-weight:600;margin-bottom:8px;">ไม่สามารถเชื่อมต่อ Firebase ได้</div>
+          <div style="font-size:13px;opacity:0.8;margin-bottom:20px;">กรุณาตรวจสอบ Firestore Security Rules ว่าเปิดให้อ่าน-เขียนได้</div>
+          <button onclick="location.reload()" style="padding:10px 24px;border-radius:8px;border:none;background:white;color:#1565c0;font-weight:600;cursor:pointer;">ลองใหม่</button>
+        </div>`;
+    }
+    return;
+  }
 
   // Hide loader
-  const loader = document.getElementById('page-loader');
   if (loader) {
     setTimeout(() => loader.classList.add('hidden'), 600);
   }
 
   // Low stock count
-  const lowItems = await getLowStockItems();
-  const lowCount = lowItems.length;
+  let lowItems = [], lowCount = 0;
+  try {
+    lowItems = await getLowStockItems();
+    lowCount = lowItems.length;
+  } catch (e) {
+    console.warn('getLowStockItems failed:', e);
+  }
 
   // Render shell
   renderSidebar(user, lowCount);
