@@ -1,0 +1,221 @@
+/* =========================================================
+   EMS Stock Manager — Animations CSS
+   Micro-animations, transitions, entrance effects
+   ========================================================= */
+
+/* ── Entrance Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+/* ── Utility Animation Classes ── */
+.anim-fade-in       { animation: fadeIn       0.3s ease forwards; }
+.anim-fade-in-up    { animation: fadeInUp     0.4s ease forwards; }
+.anim-fade-in-down  { animation: fadeInDown   0.4s ease forwards; }
+.anim-fade-in-left  { animation: fadeInLeft   0.4s ease forwards; }
+.anim-fade-in-right { animation: fadeInRight  0.4s ease forwards; }
+.anim-scale-in      { animation: scaleIn      0.3s var(--transition-spring) forwards; }
+
+/* Staggered children */
+.stagger-children > * { animation: fadeInUp 0.4s ease both; }
+.stagger-children > *:nth-child(1)  { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2)  { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3)  { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4)  { animation-delay: 0.20s; }
+.stagger-children > *:nth-child(5)  { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6)  { animation-delay: 0.30s; }
+.stagger-children > *:nth-child(7)  { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8)  { animation-delay: 0.40s; }
+
+/* ── Pulse / Glow ── */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(33,150,243,.3); }
+  50%       { box-shadow: 0 0 20px rgba(33,150,243,.6); }
+}
+@keyframes ping {
+  0%   { transform: scale(1); opacity: 1; }
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+.anim-pulse { animation: pulse 2s ease infinite; }
+.anim-glow  { animation: glow  2s ease infinite; }
+
+/* Live indicator */
+.live-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.live-dot::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  animation: ping 1.5s cubic-bezier(0,0,.2,1) infinite;
+}
+.live-dot-inner {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  position: relative;
+}
+
+/* Alert pulse for low stock */
+.low-stock-pulse {
+  animation: lowStockPulse 2s ease infinite;
+}
+@keyframes lowStockPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198,40,40,.3); }
+  50%       { box-shadow: 0 0 0 8px rgba(198,40,40,0); }
+}
+
+/* ── Loading Spinner ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255,255,255,.3);
+  border-top-color: white;
+  border-radius: var(--radius-full);
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.spinner.dark {
+  border-color: rgba(21,101,192,.2);
+  border-top-color: var(--primary-800);
+}
+.spinner.sm { width: 14px; height: 14px; border-width: 2px; }
+.spinner.lg { width: 32px; height: 32px; border-width: 3px; }
+
+/* ── Chart container ── */
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+.chart-container canvas { max-height: 280px; }
+
+/* ── Number counter animation ── */
+.count-up {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* ── Floating action button (mobile) ── */
+.fab {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--primary-800);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-xl), var(--shadow-primary);
+  cursor: pointer;
+  border: none;
+  z-index: var(--z-sticky);
+  transition: all var(--transition-spring);
+  display: none;
+}
+.fab:hover {
+  transform: scale(1.1);
+  background: var(--primary-900);
+}
+.fab .material-symbols-rounded { font-size: 24px; }
+@media (max-width: 768px) {
+  .fab { display: flex; }
+}
+
+/* ── Success checkmark animation ── */
+@keyframes checkmark {
+  0%   { stroke-dashoffset: 50; }
+  100% { stroke-dashoffset: 0; }
+}
+.success-check {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin: 0 auto;
+}
+.success-check circle {
+  fill: var(--color-success-light);
+  stroke: var(--color-success);
+  stroke-width: 2;
+}
+.success-check polyline {
+  fill: none;
+  stroke: var(--color-success);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: checkmark 0.5s ease 0.2s forwards;
+}
+
+/* ── Page transition ── */
+.page-enter {
+  animation: fadeInUp 0.35s ease both;
+}
+
+/* ── Hover lift effect ── */
+.hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Dashboard chart card entrance ── */
+.chart-card-enter {
+  animation: fadeInUp 0.5s ease both;
+}
+
+/* ── Reduce motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

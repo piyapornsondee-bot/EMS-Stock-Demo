@@ -1,0 +1,32 @@
+{
+  "name": "EMS Stock Manager",
+  "short_name": "EMS Stock",
+  "description": "Medical Inventory Management System for EMS and Hospital",
+  "start_url": "/EMS-Stock-Manager/index.html",
+  "display": "standalone",
+  "background_color": "#1565C0",
+  "theme_color": "#1565C0",
+  "orientation": "any",
+  "icons": [
+    { "src": "assets/logo.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "categories": ["medical", "productivity", "business"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/EMS-Stock-Manager/pages/dashboard.html",
+      "description": "Go to Dashboard"
+    },
+    {
+      "name": "Receive Stock",
+      "url": "/EMS-Stock-Manager/pages/receive.html",
+      "description": "Receive new stock"
+    },
+    {
+      "name": "Issue Stock",
+      "url": "/EMS-Stock-Manager/pages/issue.html",
+      "description": "Issue stock items"
+    }
+  ]
+}

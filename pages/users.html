@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จัดการผู้ใช้ — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+</head>
+<body>
+<div id="page-loader"><div class="loader-logo">🏥</div><div class="loader-text">EMS Stock Manager</div><div class="loader-sub">จัดการผู้ใช้</div><div class="loader-bar"></div></div>
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main class="page-content page-enter">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-header-title">
+            <span class="material-symbols-rounded">manage_accounts</span>
+            จัดการผู้ใช้งานระบบ
+          </div>
+          <div class="page-header-subtitle">เพิ่ม แก้ไข ลบข้อมูลผู้ใช้ระบบ และดูบันทึกประวัติการใช้งาน (Audit Logs)</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-primary" id="btn-add-user">
+            <span class="material-symbols-rounded">person_add</span>
+            เพิ่มผู้ใช้งาน
+          </button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr;gap:24px;" id="users-layout">
+        <!-- Users List Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="material-symbols-rounded">group</span>
+              รายชื่อผู้ใช้งานทั้งหมด
+            </div>
+          </div>
+          <div class="table-wrapper" style="border:none;border-radius:0;">
+            <table class="table" id="users-table">
+              <thead>
+                <tr>
+                  <th>ชื่อ-นามสกุล</th>
+                  <th>อีเมล</th>
+                  <th>บทบาท (Role)</th>
+                  <th>สถานะบัญชี</th>
+                  <th style="text-align:right;">การดำเนินการ</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Audit Log Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="material-symbols-rounded">receipt_long</span>
+              บันทึกกิจกรรมการใช้งานระบบ (Audit Logs / User Activity)
+            </div>
+          </div>
+          <div class="table-wrapper" style="border:none;border-radius:0;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>วันเวลา</th>
+                  <th>ผู้ใช้งาน</th>
+                  <th>ประเภทกิจกรรม</th>
+                  <th>รายละเอียด</th>
+                </tr>
+              </thead>
+              <tbody id="audit-log-body">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title" id="user-modal-title">เพิ่มผู้ใช้งาน</div>
+      <button class="btn-icon" onclick="document.getElementById('user-modal').classList.remove('active')">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <form id="user-form" novalidate>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:16px;">
+        <input type="hidden" id="form-user-id" />
+
+        <div class="form-group">
+          <label class="form-label" for="form-user-name">ชื่อ-นามสกุล <span class="required">*</span></label>
+          <div class="input-group">
+            <span class="material-symbols-rounded input-icon">person</span>
+            <input type="text" id="form-user-name" class="form-control" placeholder="เช่น นายสมชาย ดีใจ" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="form-user-email">อีเมล <span class="required">*</span></label>
+          <div class="input-group">
+            <span class="material-symbols-rounded input-icon">alternate_email</span>
+            <input type="email" id="form-user-email" class="form-control" placeholder="เช่น somchay@ems.local" required autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="form-group" id="password-group">
+          <label class="form-label" for="form-user-pw">รหัสผ่าน <span class="required">*</span></label>
+          <div class="input-group">
+            <span class="material-symbols-rounded input-icon">lock_outline</span>
+            <input type="password" id="form-user-pw" class="form-control" placeholder="อย่างน้อย 4 ตัวอักษร" required autocomplete="new-password" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="form-user-role">ระดับสิทธิ์การใช้งาน <span class="required">*</span></label>
+          <select id="form-user-role" class="form-control" style="font-weight:600;">
+            <option value="Administrator">Administrator (จัดการได้ทั้งหมด)</option>
+            <option value="Staff">Staff (รับ/จ่ายพัสดุ และบันทึกเช็ครถ)</option>
+            <option value="Viewer">Viewer (ดูคลังสินค้าและรายงานเท่านั้น)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-top:10px;">
+          <label class="checkbox-wrap">
+            <input type="checkbox" id="form-user-active" checked />
+            <span style="font-size:13px;color:var(--text-primary);font-weight:600;">เปิดใช้งานบัญชีนี้ (Active)</span>
+          </label>
+        </div>
+
+        <div id="user-form-error" class="alert alert-danger" style="display:none;">
+          <span class="material-symbols-rounded">error</span>
+          <span id="user-form-error-text"></span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('user-modal').classList.remove('active')">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-user">บันทึก</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { initApp, confirmDialog } from '../js/app.js';
+  import { getAllUsers, saveUser, deleteUser, getAllTransactions, dbAdd } from '../js/db.js';
+  import { requireRole } from '../js/auth.js';
+  import { toast, formatDateTime } from '../js/notifications.js';
+
+  let allUsers = [];
+
+  async function init() {
+    // Only Administrator can access this page
+    const user = await initApp('จัดการผู้ใช้', 'User Management');
+    if (!requireRole('Administrator')) {
+      toast.error('ไม่มีสิทธิ์เข้าถึง', 'หน้าจอนี้สำหรับผู้ดูแลระบบเท่านั้น');
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1000);
+      return;
+    }
+
+    await reloadUsers();
+    await reloadAuditLogs();
+
+    // Event listener
+    document.getElementById('btn-add-user')?.addEventListener('click', openAddModal);
+    document.getElementById('user-form')?.addEventListener('submit', saveUserForm);
+  }
+
+  async function reloadUsers() {
+    allUsers = await getAllUsers();
+    const tbody = document.getElementById('users-table-body');
+    if (!tbody) return;
+
+    if (allUsers.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">ไม่พบข้อมูลผู้ใช้</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = allUsers.map(u => {
+      const statusBadge = u.active
+        ? '<span class="badge badge-success">ปกติ (Active)</span>'
+        : '<span class="badge badge-danger">ระงับ (Inactive)</span>';
+      
+      const roleBadgeClass = u.role === 'Administrator' ? 'badge-primary' : u.role === 'Staff' ? 'badge-success' : 'badge-neutral';
+
+      return `
+        <tr>
+          <td style="font-weight:700;font-size:13px;">${u.full_name}</td>
+          <td>${u.email}</td>
+          <td><span class="badge ${roleBadgeClass}">${u.role}</span></td>
+          <td>${statusBadge}</td>
+          <td style="text-align:right;">
+            <div style="display:inline-flex;gap:6px;">
+              <button class="btn btn-sm btn-outline" onclick="window._editUser(${u.user_id})">
+                <span class="material-symbols-rounded" style="font-size:14px;">edit</span> แก้ไข
+              </button>
+              <button class="btn btn-sm btn-danger-outline" onclick="window._deleteUser(${u.user_id}, '${u.email}')" ${u.email === 'admin@ems.local' ? 'disabled' : ''}>
+                <span class="material-symbols-rounded" style="font-size:14px;">delete</span> ลบ
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  async function reloadAuditLogs() {
+    const tx = await getAllTransactions();
+    const tbody = document.getElementById('audit-log-body');
+    if (!tbody) return;
+
+    // Filter to show Login, Admin adjustments, User edits
+    const auditLogs = tx.filter(t => t.transaction_type === 'Login' ||
+                                     t.transaction_type === 'Adjust' ||
+                                     t.remarks?.includes('ผู้ใช้') ||
+                                     t.remarks?.includes('แก้ไข') ||
+                                     t.remarks?.includes('ลบ')).slice(0, 15);
+
+    if (auditLogs.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">ยังไม่มีกิจกรรมบันทึกไว้</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = auditLogs.map(l => {
+      let badgeType = 'badge-neutral';
+      if (l.transaction_type === 'Login') {
+        badgeType = 'badge-success';
+      } else if (l.transaction_type === 'Adjust') {
+        badgeType = 'badge-warning';
+      } else if (l.transaction_type === 'Delete' || l.remarks?.includes('ลบ')) {
+        badgeType = 'badge-danger';
+      }
+
+      return `
+        <tr>
+          <td style="font-size:11px;color:var(--text-secondary);">${formatDateTime(l.datetime)}</td>
+          <td style="font-weight:600;font-size:12px;">${l.user_name}</td>
+          <td><span class="badge ${badgeType}">${l.transaction_type === 'Login' ? 'เข้าสู่ระบบ' : l.transaction_type}</span></td>
+          <td style="font-size:12px;color:var(--text-secondary);">${l.remarks || 'N/A'}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function openAddModal() {
+    document.getElementById('user-modal-title').textContent = 'เพิ่มผู้ใช้งานใหม่';
+    document.getElementById('form-user-id').value = '';
+    document.getElementById('form-user-name').value = '';
+    document.getElementById('form-user-email').value = '';
+    document.getElementById('form-user-email').disabled = false;
+    document.getElementById('form-user-pw').value = '';
+    document.getElementById('password-group').style.display = 'block';
+    document.getElementById('form-user-pw').required = true;
+    document.getElementById('form-user-role').value = 'Staff';
+    document.getElementById('form-user-active').checked = true;
+    document.getElementById('user-form-error').style.display = 'none';
+
+    document.getElementById('user-modal').classList.add('active');
+  }
+
+  window._editUser = function(id) {
+    const user = allUsers.find(u => u.user_id === id);
+    if (!user) return;
+
+    document.getElementById('user-modal-title').textContent = 'แก้ไขข้อมูลผู้ใช้งาน';
+    document.getElementById('form-user-id').value = user.user_id;
+    document.getElementById('form-user-name').value = user.full_name;
+    document.getElementById('form-user-email').value = user.email;
+    document.getElementById('form-user-email').disabled = true; // Prevent changing email (key)
+    document.getElementById('form-user-pw').value = ''; // Blank password means unchanged
+    document.getElementById('password-group').style.display = 'block';
+    document.getElementById('form-user-pw').required = false; // Not required for editing
+    document.getElementById('form-user-role').value = user.role;
+    document.getElementById('form-user-active').checked = user.active;
+    document.getElementById('user-form-error').style.display = 'none';
+
+    document.getElementById('user-modal').classList.add('active');
+  };
+
+  window._deleteUser = function(id, email) {
+    if (email === 'admin@ems.local') {
+      toast.error('ไม่สามารถดำเนินการได้', 'ไม่สามารถลบผู้ดูแลระบบหลักได้');
+      return;
+    }
+
+    confirmDialog(`คุณต้องการลบผู้ใช้ "${email}" ออกจากระบบใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้`, async () => {
+      try {
+        await deleteUser(id);
+
+        // Audit Log
+        const activeAdmin = allUsers.find(u => u.email === 'admin@ems.local');
+        await dbAdd('transactions', {
+          datetime: new Date().toISOString(),
+          item_id: null,
+          barcode: null,
+          transaction_type: 'User Delete',
+          quantity: null,
+          balance_after_transaction: null,
+          remarks: `ลบผู้ใช้ออกจากระบบ: ${email}`,
+          user_name: activeAdmin ? activeAdmin.full_name : 'Admin EMS'
+        });
+
+        toast.success('ลบผู้ใช้สำเร็จ');
+        await reloadUsers();
+        await reloadAuditLogs();
+      } catch (err) {
+        toast.error('เกิดข้อผิดพลาด', err.message);
+      }
+    });
+  };
+
+  async function saveUserForm(e) {
+    e.preventDefault();
+    const id = document.getElementById('form-user-id').value;
+    const name = document.getElementById('form-user-name').value.trim();
+    const email = document.getElementById('form-user-email').value.trim().toLowerCase();
+    const pw = document.getElementById('form-user-pw').value;
+    const role = document.getElementById('form-user-role').value;
+    const active = document.getElementById('form-user-active').checked;
+
+    const errEl = document.getElementById('user-form-error');
+    const errText = document.getElementById('user-form-error-text');
+
+    if (!name || !email) {
+      errText.textContent = 'กรุณากรอกชื่อและอีเมลให้ครบถ้วน';
+      errEl.style.display = 'flex';
+      return;
+    }
+
+    const btn = document.getElementById('btn-save-user');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+    try {
+      if (id) {
+        // Edit User
+        const existing = allUsers.find(u => u.user_id === parseInt(id));
+        if (!existing) throw new Error('ไม่พบข้อมูลผู้ใช้');
+
+        existing.full_name = name;
+        existing.role = role;
+        existing.active = active;
+        if (pw.trim()) {
+          if (pw.length < 4) throw new Error('รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร');
+          existing.password = pw;
+        }
+
+        await saveUser(existing);
+
+        // Audit log
+        await dbAdd('transactions', {
+          datetime: new Date().toISOString(),
+          item_id: null,
+          barcode: null,
+          transaction_type: 'User Edit',
+          quantity: null,
+          balance_after_transaction: null,
+          remarks: `แก้ไขข้อมูลผู้ใช้: ${email} (${role}) · Active: ${active}`,
+          user_name: 'Admin EMS'
+        });
+
+        toast.success('แก้ไขข้อมูลผู้ใช้สำเร็จ');
+      } else {
+        // Add User
+        if (!pw || pw.length < 4) throw new Error('รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร');
+
+        // Check duplicate email
+        const dup = allUsers.find(u => u.email === email);
+        if (dup) throw new Error('มีอีเมลนี้ในระบบแล้ว');
+
+        const newUser = {
+          full_name: name,
+          email: email,
+          password: pw,
+          role: role,
+          active: active
+        };
+
+        await saveUser(newUser);
+
+        // Audit log
+        await dbAdd('transactions', {
+          datetime: new Date().toISOString(),
+          item_id: null,
+          barcode: null,
+          transaction_type: 'User Add',
+          quantity: null,
+          balance_after_transaction: null,
+          remarks: `เพิ่มผู้ใช้ใหม่เข้าระบบ: ${email} (${role})`,
+          user_name: 'Admin EMS'
+        });
+
+        toast.success('เพิ่มผู้ใช้สำเร็จ');
+      }
+
+      document.getElementById('user-modal').classList.remove('active');
+      await reloadUsers();
+      await reloadAuditLogs();
+    } catch (err) {
+      errText.textContent = err.message;
+      errEl.style.display = 'flex';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'บันทึก';
+    }
+  }
+
+  init().catch(console.error);
+</script>
+</body>
+</html>

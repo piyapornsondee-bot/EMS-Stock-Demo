@@ -1,0 +1,392 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EMS Stock Manager — Dashboard" />
+  <title>Dashboard — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="page-loader">
+  <div class="loader-logo">🏥</div>
+  <div class="loader-text">EMS Stock Manager</div>
+  <div class="loader-sub">กำลังโหลด Dashboard...</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- Scanner -->
+<div id="scanner-container">
+  <button class="scanner-close" id="scanner-close-btn">
+    <span class="material-symbols-rounded">close</span>
+  </button>
+  <video id="scanner-video" autoplay playsinline muted></video>
+  <div class="scanner-overlay">
+    <div class="scanner-corner tl"></div>
+    <div class="scanner-corner tr"></div>
+    <div class="scanner-corner bl"></div>
+    <div class="scanner-corner br"></div>
+    <div class="scanner-line"></div>
+  </div>
+  <p class="scanner-hint">จ่อกล้องไปที่ QR Code หรือ Barcode</p>
+</div>
+
+<!-- Sidebar overlay -->
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+
+<!-- App shell -->
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+
+    <main class="page-content page-enter">
+
+      <!-- KPI Cards -->
+      <div class="grid-4 stagger-children" id="kpi-grid" style="margin-bottom:24px;">
+        <div class="stat-card skeleton-card">
+          <div class="stat-icon blue"><span class="material-symbols-rounded">inventory_2</span></div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-total-items">—</div>
+            <div class="stat-label">รายการพัสดุทั้งหมด</div>
+            <div class="stat-trend up" id="kpi-items-trend"><span class="material-symbols-rounded" style="font-size:11px;">trending_up</span> อัปเดตล่าสุด</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-rounded">stacked_bar_chart</span></div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-total-stock">—</div>
+            <div class="stat-label">จำนวนสต๊อกรวม</div>
+            <div class="stat-trend up"><span class="material-symbols-rounded" style="font-size:11px;">trending_up</span> ทุกสถานที่</div>
+          </div>
+        </div>
+        <div class="stat-card low-stock-pulse" id="low-stock-card">
+          <div class="stat-icon red"><span class="material-symbols-rounded">warning</span></div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-low-stock">—</div>
+            <div class="stat-label">พัสดุมีสต๊อกต่ำกว่ากำหนด</div>
+            <div class="stat-trend down" id="low-stock-trend"><span class="material-symbols-rounded" style="font-size:11px;">priority_high</span> ต้องเติม</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon teal"><span class="material-symbols-rounded">receipt_long</span></div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-today-tx">—</div>
+            <div class="stat-label">รายการวันนี้</div>
+            <div class="stat-trend up"><span class="material-symbols-rounded" style="font-size:11px;">today</span> วันนี้</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid-2 chart-card-enter" style="margin-bottom:24px;gap:20px;">
+        <!-- Stock Usage Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="material-symbols-rounded">show_chart</span>
+              รับเข้า / จ่ายออก (7 วันล่าสุด)
+            </div>
+            <div class="live-dot" style="width:10px;height:10px;">
+              <span class="live-dot-inner" style="width:10px;height:10px;"></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chart-usage"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Doughnut -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="material-symbols-rounded">donut_large</span>
+              สัดส่วนสต๊อกตามหมวดหมู่
+            </div>
+          </div>
+          <div class="card-body" style="display:flex;align-items:center;gap:24px;">
+            <div class="chart-container" style="max-width:200px;">
+              <canvas id="chart-category"></canvas>
+            </div>
+            <div id="category-legend" style="flex:1;display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Low Stock + Recent Transactions -->
+      <div class="grid-2" style="gap:20px;">
+        <!-- Low Stock Alerts -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="material-symbols-rounded" style="color:var(--color-danger);">warning</span>
+              พัสดุมีสต๊อกต่ำกว่ากำหนด
+            </div>
+            <a href="inventory.html" class="btn btn-sm btn-outline">ดูทั้งหมด</a>
+          </div>
+          <div id="low-stock-list">
+            <div style="padding:20px;text-align:center;">
+              <div class="spinner dark" style="margin:0 auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="material-symbols-rounded">history</span>
+              รายการล่าสุด
+            </div>
+            <a href="transactions.html" class="btn btn-sm btn-outline">ดูทั้งหมด</a>
+          </div>
+          <div id="recent-tx-list">
+            <div style="padding:20px;text-align:center;">
+              <div class="spinner dark" style="margin:0 auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import { initApp, formatNumber } from '../js/app.js';
+import { getAllItems, getAllTransactions, getLowStockItems } from '../js/db.js';
+import { formatDateTime, timeAgo } from '../js/notifications.js';
+
+const LOCATIONS = ['EMS'];
+const LOCATION_ICONS = { 'EMS':'🚑' };
+
+async function renderDashboard() {
+  const user  = await initApp('Dashboard', 'ภาพรวมระบบ');
+  const items = await getAllItems();
+  const txAll = await getAllTransactions();
+  const low   = await getLowStockItems();
+
+  // KPIs
+  const totalItems = items.length;
+  const totalStock = items.reduce((s, i) => s + (i.current_stock || 0), 0);
+  const today      = new Date().toDateString();
+  const todayTx    = txAll.filter(t => new Date(t.datetime).toDateString() === today &&
+                                       t.transaction_type !== 'Login').length;
+
+  animateValue('kpi-total-items', totalItems);
+  animateValue('kpi-total-stock', totalStock);
+  animateValue('kpi-low-stock',   low.length);
+  animateValue('kpi-today-tx',    todayTx);
+
+  if (low.length === 0) {
+    document.getElementById('low-stock-card')?.classList.remove('low-stock-pulse');
+  }
+
+  // Charts
+  renderUsageChart(txAll);
+  renderCategoryChart(items);
+
+  // Low stock list
+  renderLowStockList(low);
+
+  // Recent transactions
+  renderRecentTx(txAll.slice(0, 8));
+}
+
+function animateValue(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let current = 0;
+  const step  = Math.ceil(target / 30);
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(timer);
+    }
+    el.textContent = formatNumber(current);
+  }, 30);
+}
+
+function renderUsageChart(txAll) {
+  const days = 7;
+  const labels = [];
+  const receives = [];
+  const issues   = [];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toDateString();
+    labels.push(d.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }));
+
+    const dayTx = txAll.filter(t => new Date(t.datetime).toDateString() === dateStr);
+    const recv = dayTx.filter(t => t.transaction_type === 'Receive').reduce((s,t) => s + (t.quantity||0), 0);
+    const issue = dayTx.filter(t => t.transaction_type === 'Issue').reduce((s,t) => s + Math.abs(t.quantity||0), 0);
+    receives.push(recv);
+    issues.push(issue);
+  }
+
+  new Chart(document.getElementById('chart-usage'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'รับเข้า',
+          data: receives,
+          borderColor: '#1565C0',
+          backgroundColor: 'rgba(21,101,192,.08)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#1565C0',
+          pointRadius: 4,
+          borderWidth: 2.5,
+        },
+        {
+          label: 'จ่ายออก',
+          data: issues,
+          borderColor: '#C62828',
+          backgroundColor: 'rgba(198,40,40,.08)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#C62828',
+          pointRadius: 4,
+          borderWidth: 2.5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 12 }, usePointStyle: true } } },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { family: 'Inter', size: 11 } } },
+        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { family: 'Inter', size: 11 } }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+function renderCategoryChart(items) {
+  const catMap = {};
+  for (const item of items) {
+    catMap[item.category] = (catMap[item.category] || 0) + (item.current_stock || 0);
+  }
+  const cats = Object.entries(catMap).sort((a,b) => b[1]-a[1]);
+  const colors = ['#1565C0','#00838F','#2E7D32','#C62828','#6A1B9A','#E65100','#F57F17'];
+
+  new Chart(document.getElementById('chart-category'), {
+    type: 'doughnut',
+    data: {
+      labels: cats.map(c => c[0]),
+      datasets: [{
+        data: cats.map(c => c[1]),
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#fff',
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      cutout: '65%',
+    },
+  });
+
+  // Legend
+  const legend = document.getElementById('category-legend');
+  if (!legend) return;
+  legend.innerHTML = cats.slice(0, 6).map((c, i) => `
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:${colors[i]};flex-shrink:0;"></div>
+      <div style="font-size:11px;color:var(--text-secondary);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c[0]}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-primary);">${formatNumber(c[1])}</div>
+    </div>
+  `).join('');
+}
+
+function renderLowStockList(low) {
+  const el = document.getElementById('low-stock-list');
+  if (!el) return;
+  if (low.length === 0) {
+    el.innerHTML = `
+      <div class="empty-state" style="padding:32px 16px;">
+        <div class="empty-state-icon"><span class="material-symbols-rounded">check_circle</span></div>
+        <div class="empty-state-title" style="color:var(--color-success);">สต๊อกปกติทุกรายการ</div>
+      </div>
+    `;
+    return;
+  }
+  el.innerHTML = low.slice(0, 6).map(item => {
+    const pct = item.minimum_stock > 0 ? Math.round((item.current_stock / item.minimum_stock) * 100) : 0;
+    const lvl = item.current_stock === 0 ? 'low' : (item.current_stock <= item.minimum_stock * 0.5 ? 'low' : 'medium');
+    return `
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;background:var(--color-danger-light);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-danger);">medication</span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.item_name}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">${item.location}</div>
+          <div class="stock-bar">
+            <div class="stock-bar-fill ${lvl}" style="width:${Math.min(pct,100)}%;"></div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:15px;font-weight:700;color:var(--color-danger);">${item.current_stock}</div>
+          <div style="font-size:10px;color:var(--text-muted);">/ ${item.minimum_stock} ${item.unit}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderRecentTx(txList) {
+  const el = document.getElementById('recent-tx-list');
+  if (!el) return;
+  if (txList.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="padding:32px 16px;"><div class="empty-state-icon"><span class="material-symbols-rounded">receipt_long</span></div><div class="empty-state-title">ยังไม่มีรายการ</div></div>`;
+    return;
+  }
+  const realTx = txList.filter(t => t.transaction_type !== 'Login');
+  el.innerHTML = realTx.slice(0,6).map(tx => {
+    const isReceive = tx.transaction_type === 'Receive';
+    const isIssue   = tx.transaction_type === 'Issue';
+    const icon  = isReceive ? 'add_circle' : isIssue ? 'remove_circle' : 'sync';
+    const color = isReceive ? 'var(--color-success)' : isIssue ? 'var(--color-danger)' : 'var(--color-warning)';
+    const sign  = isReceive ? '+' : isIssue ? '-' : '±';
+    return `
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:12px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:${isReceive ? 'var(--color-success-light)' : isIssue ? 'var(--color-danger-light)' : 'var(--color-warning-light)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-rounded" style="font-size:17px;color:${color};">${icon}</span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;color:var(--text-primary);">${tx.barcode || 'N/A'} — ${tx.transaction_type === 'Login' ? 'เข้าสู่ระบบ' : tx.transaction_type}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${tx.user_name} · ${timeAgo(tx.datetime)}</div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:${color};">
+          ${tx.quantity != null ? sign + Math.abs(tx.quantity) : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+renderDashboard().catch(console.error);
+</script>
+
+</body>
+</html>

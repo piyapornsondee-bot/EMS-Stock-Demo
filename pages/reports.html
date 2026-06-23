@@ -1,0 +1,400 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>รายงาน — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="page-loader"><div class="loader-logo">🏥</div><div class="loader-text">EMS Stock Manager</div><div class="loader-sub">กำลังโหลดรายงาน...</div><div class="loader-bar"></div></div>
+<div id="scanner-container"><button class="scanner-close" id="scanner-close-btn"><span class="material-symbols-rounded">close</span></button><video id="scanner-video" autoplay playsinline muted></video></div>
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main class="page-content page-enter">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-header-title"><span class="material-symbols-rounded">bar_chart</span>รายงาน</div>
+          <div class="page-header-subtitle">วิเคราะห์ข้อมูลสต๊อก การรับ-จ่าย และสรุปผล</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-success" id="btn-export">
+            <span class="material-symbols-rounded">download</span> Export รายงาน
+          </button>
+          <button class="btn btn-secondary" id="btn-print">
+            <span class="material-symbols-rounded">print</span> พิมพ์
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-item active" data-tab="inventory">
+          <span class="material-symbols-rounded">inventory_2</span> สต๊อกปัจจุบัน
+        </div>
+        <div class="tab-item" data-tab="daily">
+          <span class="material-symbols-rounded">today</span> รายวัน
+        </div>
+        <div class="tab-item" data-tab="monthly">
+          <span class="material-symbols-rounded">calendar_month</span> รายเดือน
+        </div>
+        <div class="tab-item" data-tab="lowstock">
+          <span class="material-symbols-rounded">warning</span> สต๊อกต่ำ
+        </div>
+        <div class="tab-item" data-tab="summary">
+          <span class="material-symbols-rounded">summarize</span> สรุปรับ-จ่าย
+        </div>
+      </div>
+
+      <!-- Report content -->
+      <div id="report-content"></div>
+
+    </main>
+  </div>
+</div>
+<div id="toast-container"></div>
+
+<script type="module">
+import { initApp, exportToExcel, formatNumber } from '../js/app.js';
+import { getAllItems, getAllTransactions, getLowStockItems } from '../js/db.js';
+import { toast, formatDateTime, formatDate } from '../js/notifications.js';
+
+let allItems = [], allTx = [], lowItems = [], activeTab = 'inventory';
+
+async function init() {
+  await initApp('รายงาน', 'Reports');
+  allItems = await getAllItems();
+  allTx    = (await getAllTransactions()).filter(t => t.transaction_type !== 'Login');
+  lowItems = await getLowStockItems();
+
+  document.querySelectorAll('.tab-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeTab = tab.dataset.tab;
+      renderReport();
+    });
+  });
+
+  document.getElementById('btn-export')?.addEventListener('click', doExport);
+  document.getElementById('btn-print')?.addEventListener('click', () => window.print());
+  renderReport();
+}
+
+function renderReport() {
+  const el = document.getElementById('report-content');
+  if (!el) return;
+  switch(activeTab) {
+    case 'inventory': renderInventoryReport(el); break;
+    case 'daily':     renderDailyReport(el);     break;
+    case 'monthly':   renderMonthlyReport(el);   break;
+    case 'lowstock':  renderLowStockReport(el);  break;
+    case 'summary':   renderSummaryReport(el);   break;
+  }
+}
+
+function renderInventoryReport(el) {
+  const totalItems = allItems.length;
+  const totalStock = allItems.reduce((s,i) => s+(i.current_stock||0), 0);
+  const byCategory = {};
+  for (const item of allItems) {
+    if (!byCategory[item.category]) byCategory[item.category] = { count:0, stock:0 };
+    byCategory[item.category].count++;
+    byCategory[item.category].stock += (item.current_stock||0);
+  }
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;" class="stagger-children">
+      <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-rounded">inventory_2</span></div><div class="stat-info"><div class="stat-value">${formatNumber(totalItems)}</div><div class="stat-label">รายการทั้งหมด</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><span class="material-symbols-rounded">stacked_bar_chart</span></div><div class="stat-info"><div class="stat-value">${formatNumber(totalStock)}</div><div class="stat-label">สต๊อกรวมทุกรายการ</div></div></div>
+      <div class="stat-card"><div class="stat-icon red"><span class="material-symbols-rounded">warning</span></div><div class="stat-info"><div class="stat-value">${lowItems.length}</div><div class="stat-label">รายการสต๊อกต่ำ</div></div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div class="card-title"><span class="material-symbols-rounded">category</span> สรุปตามหมวดหมู่</div></div>
+      <div class="table-wrapper" style="border:none;border-radius:0;">
+        <table class="table">
+          <thead><tr><th>หมวดหมู่</th><th>จำนวนรายการ</th><th style="text-align:right;">สต๊อกรวม</th></tr></thead>
+          <tbody>
+            ${Object.entries(byCategory).sort((a,b)=>b[1].stock-a[1].stock).map(([cat,data])=>`
+              <tr>
+                <td><span class="badge badge-primary">${cat}</span></td>
+                <td>${data.count} รายการ</td>
+                <td style="text-align:right;font-weight:700;">${formatNumber(data.stock)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title"><span class="material-symbols-rounded">list</span> รายการพัสดุทั้งหมด</div></div>
+      <div class="table-wrapper" style="border:none;border-radius:0;">
+        <table class="table">
+          <thead><tr><th>รหัส</th><th>ชื่อพัสดุ</th><th>หมวดหมู่</th><th>สถานที่</th><th style="text-align:right;">สต๊อก</th><th style="text-align:right;">ขั้นต่ำ</th><th>หน่วย</th><th>สถานะ</th></tr></thead>
+          <tbody>
+            ${allItems.map(item=>{
+              const low = item.current_stock <= item.minimum_stock;
+              return `
+                <tr>
+                  <td style="font-family:monospace;font-size:12px;">${item.barcode}</td>
+                  <td style="font-weight:600;font-size:13px;">${item.item_name}</td>
+                  <td><span class="badge badge-primary" style="font-size:10px;">${item.category}</span></td>
+                  <td style="font-size:12px;">${item.location}</td>
+                  <td style="text-align:right;font-weight:700;color:${item.current_stock===0?'var(--color-danger)':low?'var(--color-warning)':'var(--color-success)'};">${item.current_stock}</td>
+                  <td style="text-align:right;font-size:12px;color:var(--text-muted);">${item.minimum_stock}</td>
+                  <td style="font-size:12px;">${item.unit}</td>
+                  <td><span class="badge ${item.current_stock===0?'badge-danger':low?'badge-warning':'badge-success'}">${item.current_stock===0?'หมด':low?'ต่ำ':'ปกติ'}</span></td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderDailyReport(el) {
+  const days = 14;
+  const rows = [];
+  for (let i = days-1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const ds = d.toDateString();
+    const dayTx = allTx.filter(t => new Date(t.datetime).toDateString() === ds);
+    const recv  = dayTx.filter(t => t.transaction_type === 'Receive');
+    const issue = dayTx.filter(t => t.transaction_type === 'Issue');
+    rows.push({
+      date:       d.toLocaleDateString('th-TH'),
+      recvCount:  recv.length,
+      recvQty:    recv.reduce((s,t)=>s+(t.quantity||0),0),
+      issueCount: issue.length,
+      issueQty:   issue.reduce((s,t)=>s+(t.quantity||0),0),
+    });
+  }
+
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div class="card-title"><span class="material-symbols-rounded">today</span> รายงานประจำวัน (14 วันล่าสุด)</div></div>
+      <div class="card-body"><div class="chart-container"><canvas id="chart-daily"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="table-wrapper" style="border:none;border-radius:0;">
+        <table class="table">
+          <thead><tr><th>วันที่</th><th style="text-align:right;">จำนวนรับเข้า (รายการ)</th><th style="text-align:right;">รับเข้า (หน่วย)</th><th style="text-align:right;">จำนวนจ่ายออก (รายการ)</th><th style="text-align:right;">จ่ายออก (หน่วย)</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td style="font-weight:600;">${r.date}</td>
+                <td style="text-align:right;color:var(--color-success);">${r.recvCount}</td>
+                <td style="text-align:right;font-weight:700;color:var(--color-success);">+${formatNumber(r.recvQty)}</td>
+                <td style="text-align:right;color:var(--color-danger);">${r.issueCount}</td>
+                <td style="text-align:right;font-weight:700;color:var(--color-danger);">-${formatNumber(r.issueQty)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    new Chart(document.getElementById('chart-daily'), {
+      type:'bar',
+      data:{
+        labels: rows.map(r=>r.date),
+        datasets:[
+          { label:'รับเข้า (หน่วย)', data:rows.map(r=>r.recvQty),  backgroundColor:'rgba(21,101,192,.7)', borderRadius:4 },
+          { label:'จ่ายออก (หน่วย)', data:rows.map(r=>r.issueQty), backgroundColor:'rgba(198,40,40,.7)',  borderRadius:4 },
+        ],
+      },
+      options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{ legend:{ position:'top' } },
+        scales:{
+          x:{ grid:{ display:false }, ticks:{ font:{ family:'Inter', size:10 } } },
+          y:{ beginAtZero:true, ticks:{ font:{ family:'Inter', size:11 } } },
+        },
+      },
+    });
+  }, 100);
+}
+
+function renderMonthlyReport(el) {
+  const months = {};
+  for (const t of allTx) {
+    const d = new Date(t.datetime);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!months[key]) months[key] = { recv:0, issue:0 };
+    if (t.transaction_type === 'Receive') months[key].recv  += (t.quantity||0);
+    if (t.transaction_type === 'Issue')   months[key].issue += (t.quantity||0);
+  }
+  const sorted = Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);
+
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div class="card-title"><span class="material-symbols-rounded">calendar_month</span> รายงานรายเดือน (6 เดือนล่าสุด)</div></div>
+      <div class="card-body"><div class="chart-container"><canvas id="chart-monthly"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="table-wrapper" style="border:none;border-radius:0;">
+        <table class="table">
+          <thead><tr><th>เดือน</th><th style="text-align:right;">รับเข้ารวม</th><th style="text-align:right;">จ่ายออกรวม</th><th style="text-align:right;">ส่วนต่าง</th></tr></thead>
+          <tbody>
+            ${sorted.map(([m,d])=>`
+              <tr>
+                <td style="font-weight:600;">${m}</td>
+                <td style="text-align:right;font-weight:700;color:var(--color-success);">+${formatNumber(d.recv)}</td>
+                <td style="text-align:right;font-weight:700;color:var(--color-danger);">-${formatNumber(d.issue)}</td>
+                <td style="text-align:right;font-weight:700;color:${d.recv-d.issue>=0?'var(--color-success)':'var(--color-danger)'};">${d.recv-d.issue>=0?'+':''}${formatNumber(d.recv-d.issue)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  setTimeout(() => {
+    new Chart(document.getElementById('chart-monthly'), {
+      type:'line',
+      data:{
+        labels: sorted.map(([m])=>m),
+        datasets:[
+          { label:'รับเข้า', data:sorted.map(([,d])=>d.recv),  borderColor:'#1565C0', backgroundColor:'rgba(21,101,192,.1)', fill:true, tension:0.4, pointRadius:5 },
+          { label:'จ่ายออก', data:sorted.map(([,d])=>d.issue), borderColor:'#C62828', backgroundColor:'rgba(198,40,40,.1)', fill:true, tension:0.4, pointRadius:5 },
+        ],
+      },
+      options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true } } },
+    });
+  }, 100);
+}
+
+function renderLowStockReport(el) {
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="material-symbols-rounded" style="color:var(--color-danger);">warning</span>
+          รายการสต๊อกต่ำ (${lowItems.length} รายการ)
+        </div>
+      </div>
+      ${lowItems.length === 0 ? `
+        <div class="empty-state"><div class="empty-state-icon"><span class="material-symbols-rounded">check_circle</span></div><div class="empty-state-title" style="color:var(--color-success);">สต๊อกปกติทุกรายการ</div></div>
+      ` : `
+      <div class="table-wrapper" style="border:none;border-radius:0;">
+        <table class="table">
+          <thead><tr><th>รหัส</th><th>ชื่อพัสดุ</th><th>หมวดหมู่</th><th>สถานที่</th><th style="text-align:right;">สต๊อก</th><th style="text-align:right;">ขั้นต่ำ</th><th>หน่วย</th><th>ความเร่งด่วน</th></tr></thead>
+          <tbody>
+            ${lowItems.sort((a,b)=>a.current_stock-a.minimum_stock - (b.current_stock-b.minimum_stock)).map(item=>`
+              <tr>
+                <td style="font-family:monospace;font-size:12px;">${item.barcode}</td>
+                <td style="font-weight:700;font-size:13px;">${item.item_name}</td>
+                <td><span class="badge badge-primary" style="font-size:10px;">${item.category}</span></td>
+                <td style="font-size:12px;">${item.location}</td>
+                <td style="text-align:right;font-weight:700;font-size:15px;color:${item.current_stock===0?'var(--color-danger)':'var(--color-warning)'};">${item.current_stock}</td>
+                <td style="text-align:right;color:var(--text-muted);">${item.minimum_stock}</td>
+                <td>${item.unit}</td>
+                <td><span class="badge ${item.current_stock===0?'badge-danger':'badge-warning'}">${item.current_stock===0?'🚨 หมดด่วน':'⚠️ ต่ำ'}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`}
+    </div>
+  `;
+}
+
+function renderSummaryReport(el) {
+  const totalRecv  = allTx.filter(t=>t.transaction_type==='Receive').reduce((s,t)=>s+(t.quantity||0),0);
+  const totalIssue = allTx.filter(t=>t.transaction_type==='Issue').reduce((s,t)=>s+(t.quantity||0),0);
+  const totalAdj   = allTx.filter(t=>t.transaction_type==='Adjust').length;
+
+  // Top 5 most issued
+  const issueMap = {};
+  for (const t of allTx.filter(t=>t.transaction_type==='Issue')) {
+    issueMap[t.barcode] = (issueMap[t.barcode]||0) + (t.quantity||0);
+  }
+  const topIssued = Object.entries(issueMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;" class="stagger-children">
+      <div class="stat-card"><div class="stat-icon green"><span class="material-symbols-rounded">add_circle</span></div><div class="stat-info"><div class="stat-value">${formatNumber(totalRecv)}</div><div class="stat-label">รับเข้าทั้งหมด</div></div></div>
+      <div class="stat-card"><div class="stat-icon red"><span class="material-symbols-rounded">remove_circle</span></div><div class="stat-info"><div class="stat-value">${formatNumber(totalIssue)}</div><div class="stat-label">จ่ายออกทั้งหมด</div></div></div>
+      <div class="stat-card"><div class="stat-icon amber"><span class="material-symbols-rounded">sync</span></div><div class="stat-info"><div class="stat-value">${totalAdj}</div><div class="stat-label">รายการปรับยอด</div></div></div>
+    </div>
+    <div class="grid-2" style="gap:16px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><span class="material-symbols-rounded">trending_down</span> Top 5 พัสดุที่ใช้มากที่สุด</div></div>
+        <div>
+          ${topIssued.map(([barcode, qty], i) => {
+            const item = allItems.find(it=>it.barcode===barcode);
+            return `
+              <div style="padding:12px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:12px;">
+                <div style="width:28px;height:28px;background:var(--primary-50);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--primary-800);flex-shrink:0;">${i+1}</div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:600;">${item?.item_name || barcode}</div>
+                  <div style="font-size:11px;color:var(--text-muted);">${barcode}</div>
+                </div>
+                <div style="font-size:15px;font-weight:700;color:var(--color-danger);">-${formatNumber(qty)}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title"><span class="material-symbols-rounded">summarize</span> สรุปภาพรวม</div></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;justify-content:space-between;padding:12px;background:var(--color-success-light);border-radius:10px;">
+              <span style="font-size:13px;color:var(--color-success);">รายการรับเข้าทั้งหมด</span>
+              <strong style="color:var(--color-success);">${allTx.filter(t=>t.transaction_type==='Receive').length} รายการ</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:12px;background:var(--color-danger-light);border-radius:10px;">
+              <span style="font-size:13px;color:var(--color-danger);">รายการจ่ายออกทั้งหมด</span>
+              <strong style="color:var(--color-danger);">${allTx.filter(t=>t.transaction_type==='Issue').length} รายการ</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:12px;background:var(--neutral-100);border-radius:10px;">
+              <span style="font-size:13px;color:var(--text-secondary);">ผู้ดำเนินการ (users)</span>
+              <strong>${[...new Set(allTx.map(t=>t.user_name))].length} คน</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:12px;background:var(--primary-50);border-radius:10px;">
+              <span style="font-size:13px;color:var(--primary-800);">พัสดุที่ต้องเติม</span>
+              <strong style="color:var(--primary-800);">${lowItems.length} รายการ</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function doExport() {
+  let data;
+  switch(activeTab) {
+    case 'inventory':
+      data = allItems.map(i=>({'Item ID':i.item_id,'Barcode':i.barcode,'ชื่อ':i.item_name,'หมวดหมู่':i.category,'สต๊อก':i.current_stock,'ขั้นต่ำ':i.minimum_stock,'สถานที่':i.location,'หน่วย':i.unit}));
+      exportToExcel(data, 'EMS_Inventory_Report.xlsx', 'Inventory');
+      break;
+    case 'lowstock':
+      data = lowItems.map(i=>({'Barcode':i.barcode,'ชื่อ':i.item_name,'หมวดหมู่':i.category,'สต๊อก':i.current_stock,'ขั้นต่ำ':i.minimum_stock,'สถานที่':i.location}));
+      exportToExcel(data, 'EMS_LowStock_Report.xlsx', 'LowStock');
+      break;
+    default:
+      toast.info('Export', 'เลือกรายงานก่อนส่งออก');
+  }
+}
+
+init().catch(console.error);
+</script>
+</body>
+</html>

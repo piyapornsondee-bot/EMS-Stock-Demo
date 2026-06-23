@@ -1,0 +1,576 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คลังพัสดุ — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+<div id="page-loader"><div class="loader-logo">🏥</div><div class="loader-text">EMS Stock Manager</div><div class="loader-sub">กำลังโหลดคลังพัสดุ...</div><div class="loader-bar"></div></div>
+
+<div id="scanner-container">
+  <button class="scanner-close" id="scanner-close-btn"><span class="material-symbols-rounded">close</span></button>
+  <video id="scanner-video" autoplay playsinline muted></video>
+  <div class="scanner-overlay">
+    <div class="scanner-corner tl"></div><div class="scanner-corner tr"></div>
+    <div class="scanner-corner bl"></div><div class="scanner-corner br"></div>
+    <div class="scanner-line"></div>
+  </div>
+  <p class="scanner-hint">จ่อกล้องไปที่ QR Code หรือ Barcode</p>
+</div>
+
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+
+    <main class="page-content page-enter">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-header-title">
+            <span class="material-symbols-rounded">inventory_2</span>
+            คลังพัสดุการแพทย์
+          </div>
+          <div class="page-header-subtitle">จัดการรายการพัสดุ ยา และอุปกรณ์ทั้งหมด</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary" id="btn-scan-find">
+            <span class="material-symbols-rounded">qr_code_scanner</span> สแกนค้นหา
+          </button>
+          <button class="btn btn-primary" id="btn-add-item">
+            <span class="material-symbols-rounded">add</span> เพิ่มรายการ
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-body" style="padding:16px 20px;">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+            <div class="input-group" style="flex:1;min-width:220px;max-width:360px;">
+              <span class="material-symbols-rounded input-icon">search</span>
+              <input type="text" id="search-input" class="form-control" placeholder="ค้นหาชื่อ, บาร์โค้ด..." />
+            </div>
+            <select id="filter-category" class="form-control" style="width:auto;min-width:180px;">
+              <option value="">ทุกหมวดหมู่</option>
+            </select>
+            <select id="filter-location" class="form-control" style="width:auto;min-width:180px;">
+              <option value="">ทุกสถานที่</option>
+              <option value="Ambulance 1">🚑 Ambulance 1</option>
+              <option value="Ambulance 2">🚑 Ambulance 2</option>
+              <option value="Ambulance 3">🚑 Ambulance 3</option>
+              <option value="Emergency Room">🏥 Emergency Room</option>
+              <option value="Central Warehouse">🏢 Central Warehouse</option>
+            </select>
+            <select id="filter-stock" class="form-control" style="width:auto;min-width:160px;">
+              <option value="">ทุกระดับสต๊อก</option>
+              <option value="low">สต๊อกต่ำ</option>
+              <option value="normal">ปกติ</option>
+              <option value="empty">หมดสต๊อก</option>
+            </select>
+            <div style="display:flex;gap:4px;margin-left:auto;">
+              <button class="btn btn-icon btn-secondary" id="view-grid" title="Grid View">
+                <span class="material-symbols-rounded">grid_view</span>
+              </button>
+              <button class="btn btn-icon btn-ghost" id="view-list" title="List View">
+                <span class="material-symbols-rounded">view_list</span>
+              </button>
+            </div>
+          </div>
+          <div id="filter-stats" style="margin-top:10px;font-size:12px;color:var(--text-muted);"></div>
+        </div>
+      </div>
+
+      <!-- Inventory Grid/List -->
+      <div id="inventory-container"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit Item Modal -->
+<div class="modal-overlay" id="item-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-icon"><span class="material-symbols-rounded">inventory_2</span></div>
+      <div class="modal-title" id="modal-title">เพิ่มรายการพัสดุ</div>
+      <button class="modal-close" id="modal-close-btn"><span class="material-symbols-rounded">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">ชื่อพัสดุ <span class="required">*</span></label>
+          <input type="text" id="f-name" class="form-control" placeholder="ชื่อพัสดุ/ยา/อุปกรณ์" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">บาร์โค้ด</label>
+          <div class="input-group">
+            <span class="material-symbols-rounded input-icon">barcode</span>
+            <input type="text" id="f-barcode" class="form-control" placeholder="EMS-001" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">หมวดหมู่ <span class="required">*</span></label>
+          <select id="f-category" class="form-control">
+            <option value="">-- เลือกหมวดหมู่ --</option>
+            <option>Oxygen & Airway</option>
+            <option>IV & Fluids</option>
+            <option>Medications</option>
+            <option>Cardiac Equipment</option>
+            <option>Wound Care</option>
+            <option>Suction Equipment</option>
+            <option>PPE</option>
+            <option>Monitoring</option>
+            <option>Immobilization</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">หมวดหมู่ย่อย</label>
+          <input type="text" id="f-subcategory" class="form-control" placeholder="ประเภทย่อย" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">หน่วย <span class="required">*</span></label>
+          <select id="f-unit" class="form-control">
+            <option value="">-- เลือกหน่วย --</option>
+            <option value="ชิ้น">ชิ้น</option>
+            <option value="ถัง">ถัง</option>
+            <option value="ขวด">ขวด</option>
+            <option value="Amp">Amp</option>
+            <option value="ม้วน">ม้วน</option>
+            <option value="คู่">คู่</option>
+            <option value="ชุด">ชุด</option>
+            <option value="กล่อง">กล่อง</option>
+            <option value="แผ่น">แผ่น</option>
+            <option value="เม็ด">เม็ด</option>
+            <option value="ml">ml</option>
+            <option value="g">g</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">สถานที่จัดเก็บ <span class="required">*</span></label>
+          <select id="f-location" class="form-control">
+            <option value="">-- เลือกสถานที่ --</option>
+            <option value="Ambulance 1">🚑 Ambulance 1</option>
+            <option value="Ambulance 2">🚑 Ambulance 2</option>
+            <option value="Ambulance 3">🚑 Ambulance 3</option>
+            <option value="Emergency Room">🏥 Emergency Room</option>
+            <option value="Central Warehouse">🏢 Central Warehouse</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">จำนวนสต๊อกเริ่มต้น <span class="required">*</span></label>
+          <input type="number" id="f-stock" class="form-control" min="0" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">สต๊อกขั้นต่ำ (แจ้งเตือน) <span class="required">*</span></label>
+          <input type="number" id="f-min-stock" class="form-control" min="0" placeholder="0" />
+        </div>
+      </div>
+      <div id="modal-error" class="alert alert-danger" style="display:none;margin-top:16px;">
+        <span class="material-symbols-rounded">error</span>
+        <span id="modal-error-text"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="modal-cancel-btn">ยกเลิก</button>
+      <button class="btn btn-primary" id="modal-save-btn">
+        <span class="material-symbols-rounded">save</span> บันทึก
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- QR View Modal -->
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-icon"><span class="material-symbols-rounded">qr_code</span></div>
+      <div class="modal-title">QR Code / Barcode</div>
+      <button class="modal-close" onclick="document.getElementById('qr-modal').classList.remove('active')">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <div class="qr-wrapper" style="margin-bottom:16px;">
+        <div id="qr-display"></div>
+      </div>
+      <div id="qr-item-info" style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('qr-modal').classList.remove('active')">ปิด</button>
+      <button class="btn btn-primary" id="btn-download-qr">
+        <span class="material-symbols-rounded">download</span> ดาวน์โหลด
+      </button>
+      <button class="btn btn-teal" id="btn-print-qr">
+        <span class="material-symbols-rounded">print</span> พิมพ์
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import { initApp, confirmDialog, exportToExcel } from '../js/app.js';
+import { getAllItems, saveItem, deleteItem, getLowStockItems } from '../js/db.js';
+import { generateQR, downloadQR, printQRLabel } from '../js/qrgen.js';
+import { openScanner, closeScanner } from '../js/scanner.js';
+import { toast } from '../js/notifications.js';
+import { hasPermission } from '../js/auth.js';
+
+let allItems    = [];
+let filteredItems = [];
+let currentView = 'grid';
+let editingItem = null;
+
+async function init() {
+  await initApp('คลังพัสดุ', 'Medical Inventory');
+  await loadItems();
+
+  // Populate category filter
+  const cats = [...new Set(allItems.map(i => i.category).filter(Boolean))].sort();
+  const catSel = document.getElementById('filter-category');
+  cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; catSel.appendChild(o); });
+
+  // Restore location filter from session
+  const savedLoc = sessionStorage.getItem('ems_location') || '';
+  if (savedLoc) document.getElementById('filter-location').value = savedLoc;
+
+  // Event listeners
+  document.getElementById('search-input')?.addEventListener('input', applyFilters);
+  document.getElementById('filter-category')?.addEventListener('change', applyFilters);
+  document.getElementById('filter-location')?.addEventListener('change', applyFilters);
+  document.getElementById('filter-stock')?.addEventListener('change', applyFilters);
+  document.getElementById('view-grid')?.addEventListener('click', () => setView('grid'));
+  document.getElementById('view-list')?.addEventListener('click', () => setView('list'));
+
+  // Add item
+  if (hasPermission('add_item')) {
+    document.getElementById('btn-add-item')?.addEventListener('click', () => openModal(null));
+  } else {
+    document.getElementById('btn-add-item')?.classList.add('d-none');
+  }
+
+  // Scan to find
+  document.getElementById('btn-scan-find')?.addEventListener('click', () => {
+    openScanner(code => {
+      document.getElementById('search-input').value = code;
+      applyFilters();
+      toast.info('สแกนสำเร็จ', `ค้นหา: ${code}`);
+    }, null);
+  });
+
+  document.getElementById('scanner-close-btn')?.addEventListener('click', () => closeScanner());
+
+  // Modal events
+  document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
+  document.getElementById('modal-cancel-btn')?.addEventListener('click', closeModal);
+  document.getElementById('modal-save-btn')?.addEventListener('click', saveItemForm);
+  document.getElementById('item-modal')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('item-modal')) closeModal();
+  });
+
+  // Location change
+  window.addEventListener('locationChange', e => {
+    document.getElementById('filter-location').value = e.detail;
+    applyFilters();
+  });
+
+  applyFilters();
+}
+
+async function loadItems() {
+  allItems = await getAllItems();
+}
+
+function applyFilters() {
+  const search  = document.getElementById('search-input')?.value.toLowerCase() || '';
+  const catFilter  = document.getElementById('filter-category')?.value || '';
+  const locFilter  = document.getElementById('filter-location')?.value || '';
+  const stockFilter = document.getElementById('filter-stock')?.value || '';
+
+  filteredItems = allItems.filter(item => {
+    const matchSearch = !search ||
+      item.item_name?.toLowerCase().includes(search) ||
+      item.barcode?.toLowerCase().includes(search) ||
+      item.qr_code?.toLowerCase().includes(search) ||
+      item.category?.toLowerCase().includes(search);
+    const matchCat  = !catFilter  || item.category === catFilter;
+    const matchLoc  = !locFilter  || item.location === locFilter;
+    let matchStock = true;
+    if (stockFilter === 'low')    matchStock = item.current_stock > 0 && item.current_stock <= item.minimum_stock;
+    if (stockFilter === 'empty')  matchStock = item.current_stock === 0;
+    if (stockFilter === 'normal') matchStock = item.current_stock > item.minimum_stock;
+    return matchSearch && matchCat && matchLoc && matchStock;
+  });
+
+  document.getElementById('filter-stats').textContent =
+    `แสดง ${filteredItems.length} จาก ${allItems.length} รายการ`;
+
+  render();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('view-grid').className = `btn btn-icon ${v === 'grid' ? 'btn-secondary' : 'btn-ghost'}`;
+  document.getElementById('view-list').className = `btn btn-icon ${v === 'list' ? 'btn-secondary' : 'btn-ghost'}`;
+  render();
+}
+
+function getStockLevel(item) {
+  if (item.current_stock === 0) return 'empty';
+  if (item.current_stock <= item.minimum_stock) return 'low';
+  if (item.current_stock <= item.minimum_stock * 1.5) return 'medium';
+  return 'high';
+}
+
+function render() {
+  const container = document.getElementById('inventory-container');
+  if (!container) return;
+
+  if (filteredItems.length === 0) {
+    container.innerHTML = `
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon"><span class="material-symbols-rounded">inventory_2</span></div>
+          <div class="empty-state-title">ไม่พบรายการ</div>
+          <div class="empty-state-text">ลองเปลี่ยนตัวกรองหรือเพิ่มรายการใหม่</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (currentView === 'grid') {
+    container.innerHTML = `
+      <div class="grid-auto stagger-children">
+        ${filteredItems.map(item => renderItemCard(item)).join('')}
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>รายการ</th>
+              <th>หมวดหมู่</th>
+              <th>สถานที่</th>
+              <th>สต๊อก</th>
+              <th>ขั้นต่ำ</th>
+              <th>สถานะ</th>
+              <th>บาร์โค้ด</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredItems.map(item => {
+              const level = getStockLevel(item);
+              const badge = level === 'empty' ? 'badge-danger' : level === 'low' ? 'badge-warning' : 'badge-success';
+              const labelTh = level === 'empty' ? 'หมด' : level === 'low' ? 'ต่ำ' : 'ปกติ';
+              return `
+                <tr>
+                  <td>
+                    <div style="font-weight:600;font-size:13px;">${item.item_name}</div>
+                    <div style="font-size:11px;color:var(--text-muted);">${item.unit}</div>
+                  </td>
+                  <td><span class="badge badge-primary">${item.category}</span></td>
+                  <td style="font-size:12px;">${item.location}</td>
+                  <td style="font-weight:700;font-size:15px;color:${level === 'empty' ? 'var(--color-danger)' : level === 'low' ? 'var(--color-warning)' : 'var(--text-primary)'};">${item.current_stock}</td>
+                  <td style="font-size:12px;color:var(--text-muted);">${item.minimum_stock}</td>
+                  <td><span class="badge ${badge}">${labelTh}</span></td>
+                  <td style="font-size:11px;font-family:monospace;">${item.barcode}</td>
+                  <td>
+                    <div style="display:flex;gap:4px;">
+                      <button class="btn btn-icon btn-sm btn-ghost" onclick="viewQR(${item.item_id})" title="QR Code">
+                        <span class="material-symbols-rounded" style="font-size:16px;">qr_code</span>
+                      </button>
+                      ${hasPermission('edit_item') ? `
+                      <button class="btn btn-icon btn-sm btn-ghost" onclick="editItem(${item.item_id})" title="แก้ไข">
+                        <span class="material-symbols-rounded" style="font-size:16px;">edit</span>
+                      </button>
+                      <button class="btn btn-icon btn-sm btn-ghost" style="color:var(--color-danger);" onclick="deleteItemAction(${item.item_id})" title="ลบ">
+                        <span class="material-symbols-rounded" style="font-size:16px;">delete</span>
+                      </button>` : ''}
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+}
+
+function renderItemCard(item) {
+  const level = getStockLevel(item);
+  const pct = item.minimum_stock > 0 ? Math.min(Math.round((item.current_stock / (item.minimum_stock * 2)) * 100), 100) : 100;
+  const badge = level === 'empty' ? 'badge-danger' : level === 'low' ? 'badge-warning' : 'badge-success';
+  const labelTh = level === 'empty' ? 'หมดสต๊อก' : level === 'low' ? 'สต๊อกต่ำ' : 'ปกติ';
+  const borderColor = level === 'low' || level === 'empty' ? 'border-color:var(--color-danger-light);' : '';
+
+  return `
+    <div class="item-card" style="${borderColor}">
+      <div class="item-card-img">
+        ${item.item_image
+          ? `<img src="${item.item_image}" alt="${item.item_name}" />`
+          : `<span class="material-symbols-rounded no-img">medication</span>`}
+        <span class="badge ${badge}" style="position:absolute;top:8px;right:8px;">${labelTh}</span>
+      </div>
+      <div class="item-card-body">
+        <div class="item-card-name">${item.item_name}</div>
+        <div class="item-card-meta">
+          <span class="badge badge-primary" style="font-size:10px;">${item.category}</span>
+          <span class="badge badge-neutral" style="font-size:10px;">${item.location}</span>
+        </div>
+        <div class="item-card-stock">
+          <div class="item-card-stock-row">
+            <span>สต๊อกปัจจุบัน</span>
+            <span style="font-size:11px;color:var(--text-muted);">ขั้นต่ำ ${item.minimum_stock} ${item.unit}</span>
+          </div>
+          <div class="item-card-stock-row">
+            <div class="item-card-stock-value" style="color:${level==='empty'?'var(--color-danger)':level==='low'?'var(--color-warning)':'var(--text-primary)'};">
+              ${item.current_stock} <span style="font-size:12px;font-weight:400;color:var(--text-muted);">${item.unit}</span>
+            </div>
+          </div>
+          <div class="stock-bar" style="margin-top:4px;">
+            <div class="stock-bar-fill ${level === 'high' ? 'high' : level === 'medium' ? 'medium' : 'low'}" style="width:${pct}%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="item-card-actions">
+        <button class="btn btn-sm btn-ghost" onclick="viewQR(${item.item_id})" style="flex:1;">
+          <span class="material-symbols-rounded" style="font-size:15px;">qr_code</span> QR
+        </button>
+        ${hasPermission('edit_item') ? `
+        <button class="btn btn-sm btn-ghost" onclick="editItem(${item.item_id})" style="flex:1;">
+          <span class="material-symbols-rounded" style="font-size:15px;">edit</span> แก้ไข
+        </button>
+        <button class="btn btn-sm btn-ghost" onclick="deleteItemAction(${item.item_id})" style="flex:1;color:var(--color-danger);">
+          <span class="material-symbols-rounded" style="font-size:15px;">delete</span>
+        </button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// Global functions for onclick handlers
+window.viewQR = function(itemId) {
+  const item = allItems.find(i => i.item_id === itemId);
+  if (!item) return;
+  const modal = document.getElementById('qr-modal');
+  modal.classList.add('active');
+  const display = document.getElementById('qr-display');
+  display.innerHTML = '';
+  generateQR(display, item.qr_code || item.barcode, { size: 180 });
+  document.getElementById('qr-item-info').innerHTML = `
+    <strong>${item.item_name}</strong><br>
+    บาร์โค้ด: ${item.barcode} | สถานที่: ${item.location}
+  `;
+  document.getElementById('btn-download-qr').onclick = () => downloadQR(item.qr_code || item.barcode, `qr-${item.barcode}.png`);
+  document.getElementById('btn-print-qr').onclick    = () => printQRLabel(item);
+};
+
+window.editItem = function(itemId) {
+  const item = allItems.find(i => i.item_id === itemId);
+  if (!item) return;
+  openModal(item);
+};
+
+window.deleteItemAction = function(itemId) {
+  const item = allItems.find(i => i.item_id === itemId);
+  if (!item) return;
+  confirmDialog(`ต้องการลบ "${item.item_name}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`, async () => {
+    await deleteItem(itemId);
+    await loadItems();
+    applyFilters();
+    toast.success('ลบรายการสำเร็จ', item.item_name);
+  });
+};
+
+function openModal(item) {
+  editingItem = item;
+  document.getElementById('modal-title').textContent = item ? 'แก้ไขรายการพัสดุ' : 'เพิ่มรายการพัสดุ';
+  document.getElementById('f-name').value       = item?.item_name || '';
+  document.getElementById('f-barcode').value    = item?.barcode || '';
+  document.getElementById('f-category').value  = item?.category || '';
+  document.getElementById('f-subcategory').value= item?.subcategory || '';
+  document.getElementById('f-unit').value       = item?.unit || '';
+  document.getElementById('f-location').value  = item?.location || '';
+  document.getElementById('f-stock').value      = item?.current_stock ?? '';
+  document.getElementById('f-min-stock').value  = item?.minimum_stock ?? '';
+  document.getElementById('modal-error').style.display = 'none';
+  document.getElementById('item-modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('item-modal').classList.remove('active');
+  editingItem = null;
+}
+
+async function saveItemForm() {
+  const name     = document.getElementById('f-name').value.trim();
+  const barcode  = document.getElementById('f-barcode').value.trim();
+  const category = document.getElementById('f-category').value;
+  const unit     = document.getElementById('f-unit').value;
+  const location = document.getElementById('f-location').value;
+  const stock    = parseInt(document.getElementById('f-stock').value);
+  const minStock = parseInt(document.getElementById('f-min-stock').value);
+
+  const errEl = document.getElementById('modal-error');
+  const errTx = document.getElementById('modal-error-text');
+
+  if (!name || !category || !unit || !location || isNaN(stock) || isNaN(minStock)) {
+    errTx.textContent = 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน';
+    errEl.style.display = 'flex';
+    return;
+  }
+
+  const btn = document.getElementById('modal-save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+  const auto_barcode = barcode || `EMS-${String(Date.now()).slice(-4)}`;
+  const item = {
+    ...(editingItem || {}),
+    item_name:     name,
+    barcode:       auto_barcode,
+    qr_code:       auto_barcode,
+    category,
+    subcategory:   document.getElementById('f-subcategory').value.trim(),
+    unit,
+    current_stock: stock,
+    minimum_stock: minStock,
+    location,
+    item_image:    editingItem?.item_image || '',
+  };
+
+  await saveItem(item);
+  await loadItems();
+  applyFilters();
+  closeModal();
+  toast.success('บันทึกสำเร็จ', `${name}`);
+
+  btn.disabled = false;
+  btn.innerHTML = '<span class="material-symbols-rounded">save</span> บันทึก';
+}
+
+init().catch(console.error);
+</script>
+
+</body>
+</html>

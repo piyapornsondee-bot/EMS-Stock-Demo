@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512">
+  <!-- Rounded White Background Card to make the logo pop -->
+  <rect width="24" height="24" rx="5" fill="#FFFFFF" />
+
+  <!-- Main Crate and Trolley Group (Rotated to match leaning stance) -->
+  <g transform="translate(15.5, 19.5) rotate(-22) translate(-15.5, -19.5)">
+    <!-- Trolley Bed / Lip -->
+    <line x1="15.5" y1="19.5" x2="22" y2="19.5" stroke="#0D47A1" stroke-width="1.2" stroke-linecap="round" />
+    
+    <!-- Trolley Frame Bar -->
+    <line x1="15.5" y1="6.5" x2="15.5" y2="19.5" stroke="#0D47A1" stroke-width="1.2" stroke-linecap="round" />
+    <!-- Handle Bend at Top -->
+    <path d="M 15.5,6.5 Q 15,5.5 13.8,5.5" fill="none" stroke="#0D47A1" stroke-width="1.2" stroke-linecap="round" />
+
+    <!-- Boxes / Packages on the Trolley -->
+    <!-- Bottom-Left Box (Large) -->
+    <rect x="16.2" y="13.2" width="2.8" height="5.8" rx="0.3" fill="#FFA726" />
+    <!-- Bottom-Right Box (Small) -->
+    <rect x="19.4" y="15.2" width="2.2" height="3.8" rx="0.3" fill="#FFA726" />
+    <!-- Top-Right Box (Medium vertical) -->
+    <rect x="19.4" y="9.5" width="2.2" height="5.2" rx="0.3" fill="#FFA726" />
+    <!-- Top-Left Box (Small horizontal) -->
+    <rect x="16.2" y="9.5" width="2.8" height="3.2" rx="0.3" fill="#FFA726" />
+  </g>
+
+  <!-- Trolley Wheel (Non-rotated, centered on the rotation point) -->
+  <circle cx="15.5" cy="19.5" r="1.8" fill="#0D47A1" />
+  <circle cx="15.5" cy="19.5" r="0.6" fill="#FFFFFF" />
+
+  <!-- Person (Non-rotated) -->
+  <!-- Head -->
+  <circle cx="6" cy="4.5" r="1.5" fill="#0D47A1" />
+  <!-- Torso -->
+  <path d="M 6,6.2 L 6,12.5" fill="none" stroke="#0D47A1" stroke-width="2.6" stroke-linecap="round" />
+  <!-- Shoulder to Arm (reaches handle) -->
+  <path d="M 6,7.5 C 7.8,7.5 9.2,7.5 10.6,7.45" fill="none" stroke="#0D47A1" stroke-width="2.2" stroke-linecap="round" />
+  <!-- Front leg (walking forward) -->
+  <path d="M 6,12.5 C 8,14.5 9,16.5 9,19.5" fill="none" stroke="#0D47A1" stroke-width="2.6" stroke-linecap="round" />
+  <!-- Back leg (trailing behind) -->
+  <path d="M 6,12.5 C 4.5,15 3.5,16.5 3.5,19.5" fill="none" stroke="#0D47A1" stroke-width="2.6" stroke-linecap="round" />
+</svg>

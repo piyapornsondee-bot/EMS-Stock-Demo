@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ประวัติรายการ — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="page-loader"><div class="loader-logo">🏥</div><div class="loader-text">EMS Stock Manager</div><div class="loader-sub">ประวัติรายการ</div><div class="loader-bar"></div></div>
+<div id="scanner-container">
+  <button class="scanner-close" id="scanner-close-btn"><span class="material-symbols-rounded">close</span></button>
+  <video id="scanner-video" autoplay playsinline muted></video>
+  <div class="scanner-overlay"><div class="scanner-corner tl"></div><div class="scanner-corner tr"></div><div class="scanner-corner bl"></div><div class="scanner-corner br"></div><div class="scanner-line"></div></div>
+</div>
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main class="page-content page-enter">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-header-title">
+            <span class="material-symbols-rounded">receipt_long</span>
+            ประวัติการทำรายการ
+          </div>
+          <div class="page-header-subtitle">ค้นหาและกรองรายการรับเข้า จ่ายออก และปรับยอด</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-success" id="btn-export">
+            <span class="material-symbols-rounded">download</span> Export Excel
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-body" style="padding:16px 20px;">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+            <div class="input-group" style="flex:1;min-width:200px;max-width:300px;">
+              <span class="material-symbols-rounded input-icon">search</span>
+              <input type="text" id="search-input" class="form-control" placeholder="ค้นหาบาร์โค้ด, ชื่อผู้ใช้..." />
+            </div>
+            <input type="date" id="filter-date-from" class="form-control" style="width:auto;" title="จากวันที่" />
+            <input type="date" id="filter-date-to" class="form-control" style="width:auto;" title="ถึงวันที่" />
+            <select id="filter-type" class="form-control" style="width:auto;min-width:160px;">
+              <option value="">ทุกประเภท</option>
+              <option value="Receive">รับเข้า</option>
+              <option value="Issue">จ่ายออก</option>
+              <option value="Adjust">ปรับยอด</option>
+            </select>
+            <select id="filter-user" class="form-control" style="width:auto;min-width:160px;">
+              <option value="">ทุกผู้ใช้</option>
+            </select>
+            <button class="btn btn-secondary" id="btn-reset-filters">
+              <span class="material-symbols-rounded">refresh</span> รีเซ็ต
+            </button>
+          </div>
+          <div id="tx-stats" style="margin-top:10px;font-size:12px;color:var(--text-muted);display:flex;gap:20px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper" id="tx-table-wrap">
+        <div style="padding:40px;text-align:center;"><div class="spinner dark lg" style="margin:0 auto;"></div></div>
+      </div>
+
+      <!-- Pagination -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:12px;">
+        <div id="page-info" style="font-size:13px;color:var(--text-muted);"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<div id="toast-container"></div>
+
+<script type="module">
+import { initApp, exportToExcel, formatNumber } from '../js/app.js';
+import { getAllTransactions, getAllItems } from '../js/db.js';
+import { toast, formatDateTime } from '../js/notifications.js';
+
+const PAGE_SIZE = 20;
+let allTx = [], filteredTx = [], currentPage = 1;
+let allItems = [];
+
+async function init() {
+  await initApp('ประวัติรายการ', 'Transaction History');
+  allTx    = await getAllTransactions();
+  allItems = await getAllItems();
+
+  // Filter out login events
+  allTx = allTx.filter(t => t.transaction_type !== 'Login');
+
+  // Populate user filter
+  const users = [...new Set(allTx.map(t => t.user_name).filter(Boolean))].sort();
+  const userSel = document.getElementById('filter-user');
+  users.forEach(u => { const o = document.createElement('option'); o.value = u; o.textContent = u; userSel.appendChild(o); });
+
+  // Set default date range (last 30 days)
+  const today = new Date();
+  const from  = new Date(); from.setDate(from.getDate() - 30);
+  document.getElementById('filter-date-to').value   = today.toISOString().split('T')[0];
+  document.getElementById('filter-date-from').value = from.toISOString().split('T')[0];
+
+  // Events
+  document.getElementById('search-input')?.addEventListener('input', applyFilters);
+  document.getElementById('filter-date-from')?.addEventListener('change', applyFilters);
+  document.getElementById('filter-date-to')?.addEventListener('change', applyFilters);
+  document.getElementById('filter-type')?.addEventListener('change', applyFilters);
+  document.getElementById('filter-user')?.addEventListener('change', applyFilters);
+  document.getElementById('btn-reset-filters')?.addEventListener('click', resetFilters);
+  document.getElementById('btn-export')?.addEventListener('click', doExport);
+
+  applyFilters();
+}
+
+function applyFilters() {
+  const search   = document.getElementById('search-input')?.value.toLowerCase() || '';
+  const dateFrom = document.getElementById('filter-date-from')?.value;
+  const dateTo   = document.getElementById('filter-date-to')?.value;
+  const type     = document.getElementById('filter-type')?.value || '';
+  const user     = document.getElementById('filter-user')?.value || '';
+
+  filteredTx = allTx.filter(t => {
+    const d = t.datetime ? t.datetime.split('T')[0] : '';
+    const matchSearch = !search || (t.barcode||'').toLowerCase().includes(search) ||
+                        (t.user_name||'').toLowerCase().includes(search) ||
+                        (t.remarks||'').toLowerCase().includes(search);
+    const matchFrom = !dateFrom || d >= dateFrom;
+    const matchTo   = !dateTo   || d <= dateTo;
+    const matchType = !type || t.transaction_type === type;
+    const matchUser = !user || t.user_name === user;
+    return matchSearch && matchFrom && matchTo && matchType && matchUser;
+  });
+
+  // Stats
+  const totalReceive = filteredTx.filter(t => t.transaction_type === 'Receive').reduce((s,t) => s+(t.quantity||0), 0);
+  const totalIssue   = filteredTx.filter(t => t.transaction_type === 'Issue').reduce((s,t) => s+(t.quantity||0), 0);
+  document.getElementById('tx-stats').innerHTML = `
+    <span>รายการทั้งหมด: <strong>${filteredTx.length}</strong></span>
+    <span style="color:var(--color-success);">รับเข้า: <strong>+${formatNumber(totalReceive)}</strong></span>
+    <span style="color:var(--color-danger);">จ่ายออก: <strong>-${formatNumber(totalIssue)}</strong></span>
+  `;
+
+  currentPage = 1;
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('filter-type').value  = '';
+  document.getElementById('filter-user').value  = '';
+  const today = new Date();
+  const from  = new Date(); from.setDate(from.getDate() - 30);
+  document.getElementById('filter-date-to').value   = today.toISOString().split('T')[0];
+  document.getElementById('filter-date-from').value = from.toISOString().split('T')[0];
+  applyFilters();
+}
+
+function renderTable() {
+  const wrap  = document.getElementById('tx-table-wrap');
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filteredTx.slice(start, start + PAGE_SIZE);
+
+  if (filteredTx.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon"><span class="material-symbols-rounded">receipt_long</span></div>
+        <div class="empty-state-title">ไม่พบรายการ</div>
+        <div class="empty-state-text">ลองเปลี่ยนตัวกรองการค้นหา</div>
+      </div>
+    `;
+    document.getElementById('page-info').textContent   = '';
+    document.getElementById('pagination').innerHTML    = '';
+    return;
+  }
+
+  wrap.innerHTML = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>วันเวลา</th>
+          <th>บาร์โค้ด / ชื่อพัสดุ</th>
+          <th>ประเภท</th>
+          <th style="text-align:right;">จำนวน</th>
+          <th style="text-align:right;">คงเหลือ</th>
+          <th>ผู้ดำเนินการ</th>
+          <th>หมายเหตุ</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${page.map(t => {
+          const isRecv = t.transaction_type === 'Receive';
+          const isIssue = t.transaction_type === 'Issue';
+          const item = allItems.find(i => i.item_id === t.item_id);
+          const typeLabel = isRecv ? 'รับเข้า' : isIssue ? 'จ่ายออก' : 'ปรับยอด';
+          const typeBadge = isRecv ? 'badge-success' : isIssue ? 'badge-danger' : 'badge-warning';
+          const qtyColor  = isRecv ? 'var(--color-success)' : isIssue ? 'var(--color-danger)' : '#F57F17';
+          const qtySign   = isRecv ? '+' : isIssue ? '-' : '±';
+          return `
+            <tr>
+              <td style="font-size:12px;white-space:nowrap;">${formatDateTime(t.datetime)}</td>
+              <td>
+                <div style="font-weight:600;font-size:12px;font-family:monospace;">${t.barcode || '-'}</div>
+                ${item ? `<div style="font-size:11px;color:var(--text-muted);">${item.item_name}</div>` : ''}
+              </td>
+              <td><span class="badge ${typeBadge}">${typeLabel}</span></td>
+              <td style="text-align:right;font-weight:700;font-size:14px;color:${qtyColor};">${qtySign}${Math.abs(t.quantity||0)}</td>
+              <td style="text-align:right;font-size:13px;color:var(--text-muted);">${t.balance_after_transaction ?? '-'}</td>
+              <td style="font-size:12px;">${t.user_name || '-'}</td>
+              <td style="font-size:12px;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${t.remarks||''}">${t.remarks || '-'}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+
+  const totalPages = Math.ceil(filteredTx.length / PAGE_SIZE);
+  document.getElementById('page-info').textContent =
+    `แสดง ${start + 1}–${Math.min(start + PAGE_SIZE, filteredTx.length)} จาก ${filteredTx.length} รายการ`;
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const pag = document.getElementById('pagination');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = '';
+  html += `<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})"><span class="material-symbols-rounded" style="font-size:16px;">chevron_left</span></button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i===1 || i===totalPages || Math.abs(i-currentPage)<=1) {
+      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (Math.abs(i-currentPage)===2) {
+      html += `<button class="page-btn" disabled>…</button>`;
+    }
+  }
+  html += `<button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goPage(${currentPage+1})"><span class="material-symbols-rounded" style="font-size:16px;">chevron_right</span></button>`;
+  pag.innerHTML = html;
+}
+
+window.goPage = function(p) { currentPage = p; renderTable(); window.scrollTo(0, 0); };
+
+function doExport() {
+  const data = filteredTx.map(t => ({
+    'วันเวลา':         formatDateTime(t.datetime),
+    'บาร์โค้ด':        t.barcode || '',
+    'ประเภท':          t.transaction_type,
+    'จำนวน':           t.quantity,
+    'คงเหลือหลังรายการ': t.balance_after_transaction ?? '',
+    'ผู้ดำเนินการ':     t.user_name || '',
+    'หมายเหตุ':        t.remarks || '',
+  }));
+  exportToExcel(data, `EMS_Transactions_${new Date().toISOString().split('T')[0]}.xlsx`, 'Transactions');
+}
+
+init().catch(console.error);
+</script>
+</body>
+</html>

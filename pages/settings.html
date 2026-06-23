@@ -1,0 +1,462 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ตั้งค่า — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+</head>
+<body>
+<div id="page-loader"><div class="loader-logo">🏥</div><div class="loader-text">EMS Stock Manager</div><div class="loader-sub">กำลังโหลดการตั้งค่า...</div><div class="loader-bar"></div></div>
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main class="page-content page-enter">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-header-title">
+            <span class="material-symbols-rounded">settings</span>
+            ตั้งค่าระบบ
+          </div>
+          <div class="page-header-subtitle">ตั้งค่าการสำรองข้อมูล Google Sheets, เปลี่ยนรูปลักษณ์ และจัดการฐานข้อมูล</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;align-items:start;" id="settings-layout">
+        <!-- Left panel -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <!-- Google Sheets Backup -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="material-symbols-rounded" style="color:var(--primary-800);">backup</span>
+                สำรองข้อมูลอัตโนมัติไปยัง Google Sheets
+              </div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:16px;">
+              <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+                ระบบสามารถสำรองประวัติการทำรายการรับเข้าและจ่ายออกของพัสดุ (Transactions) ไปยัง Google Sheets ได้โดยอัตโนมัติเมื่ออุปกรณ์เชื่อมต่ออินเทอร์เน็ต ผ่าน <strong>Google Apps Script Web App</strong>
+              </p>
+              
+              <div class="form-group">
+                <label class="form-label" for="sheets-url">Google Apps Script Web App URL</label>
+                <div class="input-group">
+                  <span class="material-symbols-rounded input-icon">link</span>
+                  <input type="url" id="sheets-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec" />
+                </div>
+                <div class="form-text">สามารถนำ URL ที่ได้จากการ Deploy Apps Script มาวางตรงนี้</div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;gap:10px;">
+                <button class="btn btn-primary" id="btn-save-sheets">
+                  <span class="material-symbols-rounded">save</span> บันทึกการเชื่อมต่อ
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- App Customization -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="material-symbols-rounded" style="color:var(--teal-600);">palette</span>
+                การแสดงผลและรูปลักษณ์ (Theme)
+              </div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:16px;">
+              <!-- Theme selector -->
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--neutral-50);border:1px solid var(--border-light);border-radius:var(--radius-md);">
+                <div>
+                  <div style="font-size:13px;font-weight:700;">โหมดกลางคืน (Dark Theme)</div>
+                  <div style="font-size:11px;color:var(--text-muted);">เปลี่ยนสีพื้นหลังเพื่อถนอมสายตาในที่มืด</div>
+                </div>
+                <!-- Toggle switch -->
+                <label class="switch-wrap">
+                  <input type="checkbox" id="theme-toggle" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <!-- Notifications setting -->
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--neutral-50);border:1px solid var(--border-light);border-radius:var(--radius-md);">
+                <div>
+                  <div style="font-size:13px;font-weight:700;">แจ้งเตือนเมื่อพัสดุมีสต๊อกต่ำกว่ากำหนด</div>
+                  <div style="font-size:11px;color:var(--text-muted);">แจ้งเตือนผ่านหน้าจอเมื่อพัสดุกู้ชีพต่ำกว่าเกณฑ์</div>
+                </div>
+                <label class="switch-wrap">
+                  <input type="checkbox" id="alert-toggle" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Apps Script Source Code Template -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="material-symbols-rounded" style="color:var(--color-success);">code</span>
+                ซอร์สโค้ดสำหรับ Google Apps Script
+              </div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <p style="font-size:12px;color:var(--text-secondary);">
+                1. สร้าง Google Sheet ใหม่<br>
+                2. ไปที่เมนู <strong>Extensions > Apps Script</strong><br>
+                3. คัดลอกซอร์สโค้ดด้านล่างนี้ไปวางและบันทึก จากนั้นกด **Deploy > New deployment** (เลือกประเภท Web App, และตั้งค่า Who has access เป็น **Anyone**)<br>
+                4. นำ URL ที่ได้มาตั้งค่าด้านบน
+              </p>
+              <textarea readonly class="form-control" rows="8" style="font-family:monospace;font-size:11px;background:var(--neutral-50);color:var(--text-secondary);cursor:text;" id="code-template">
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+  try {
+    var doc = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = doc.getSheetByName("Transactions");
+    if (!sheet) {
+      sheet = doc.insertSheet("Transactions");
+      sheet.appendRow(["Transaction ID", "Datetime", "Item ID", "Barcode", "Type", "Quantity", "Balance After", "User", "Remarks"]);
+    }
+    var data = JSON.parse(e.postData.contents);
+    sheet.appendRow([
+      data.transaction_id || "",
+      data.datetime || new Date().toISOString(),
+      data.item_id || "",
+      data.barcode || "",
+      data.transaction_type || "",
+      data.quantity || 0,
+      data.balance_after_transaction || 0,
+      data.user_name || "",
+      data.remarks || ""
+    ]);
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", result: "synced" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+              </textarea>
+              <button class="btn btn-sm btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('code-template').value);alert('คัดลอกซอร์สโค้ดสำเร็จ');" style="align-self:flex-start;">
+                <span class="material-symbols-rounded" style="font-size:14px;">content_copy</span> คัดลอกโค้ด
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right panel (DB management) -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="material-symbols-rounded" style="color:var(--color-danger);">database</span>
+                การจัดการฐานข้อมูลเครื่อง (Local Database)
+              </div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+              <p style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
+                ข้อมูลทั้งหมดบันทึกอยู่ภายในบราวเซอร์ของคุณ (IndexedDB) คุณสามารถสำรองข้อมูล ล้างข้อมูล หรือคืนค่าเริ่มต้นระบบได้ที่นี่
+              </p>
+
+              <button class="btn btn-outline w-full" id="btn-export-db" style="justify-content:center;">
+                <span class="material-symbols-rounded">download</span> สำรองข้อมูลเครื่อง (JSON)
+              </button>
+
+              <div style="border-top:1px solid var(--border-light);margin:10px 0;"></div>
+
+              <button class="btn btn-warning-outline w-full" id="btn-seed-db" style="justify-content:center;">
+                <span class="material-symbols-rounded">restart_alt</span> รีเซ็ต & Seed ข้อมูลตั้งต้น
+              </button>
+
+              <button class="btn btn-danger-outline w-full" id="btn-clear-db" style="justify-content:center;margin-top:4px;">
+                <span class="material-symbols-rounded">delete_forever</span> ล้างข้อมูลทั้งหมด (Clear DB)
+              </button>
+            </div>
+          </div>
+
+          <!-- PWA Information -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="material-symbols-rounded" style="color:var(--color-info);">info</span>
+                ข้อมูลเกี่ยวกับระบบ (PWA Status)
+              </div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="display:flex;justify-content:space-between;">
+                <span>เวอร์ชันระบบ:</span>
+                <strong>v1.0.0</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span>สถานะการเชื่อมต่อ:</span>
+                <strong id="pwa-network-status">—</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span>สถานะ Service Worker:</span>
+                <strong id="pwa-sw-status">—</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span>การติดตั้งภายนอก (PWA):</span>
+                <strong id="pwa-install-status">รองรับ (พร้อมติดตั้ง)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- Switch Styles -->
+<style>
+  .switch-wrap {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .switch-wrap input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: var(--neutral-300);
+    transition: .3s;
+    border-radius: var(--radius-full);
+  }
+  .switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .switch-wrap input:checked + .switch-slider {
+    background-color: var(--primary-800);
+  }
+  .switch-wrap input:checked + .switch-slider:before {
+    transform: translateX(20px);
+  }
+</style>
+
+<script type="module">
+  import { initApp, confirmDialog } from '../js/app.js';
+  import { getSetting, setSetting, getAllItems, getAllTransactions, getAllChecklists, openDB } from '../js/db.js';
+  import { toast } from '../js/notifications.js';
+
+  async function init() {
+    await initApp('ตั้งค่า', 'Settings');
+
+    // Load URL
+    const sheetsUrl = await getSetting('google_sheets_url');
+    if (sheetsUrl) {
+      document.getElementById('sheets-url').value = sheetsUrl;
+    }
+
+    // Set network status
+    updateNetworkStatus();
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
+
+    // Set SW Status
+    const swStatus = document.getElementById('pwa-sw-status');
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      swStatus.textContent = 'ทำงานปกติ (Active)';
+      swStatus.style.color = 'var(--color-success)';
+    } else {
+      swStatus.textContent = 'ไม่ได้ลงทะเบียน / ออฟไลน์';
+      swStatus.style.color = 'var(--text-muted)';
+    }
+
+    // Load Theme State
+    const currentTheme = localStorage.getItem('ems_theme');
+    const themeToggle = document.getElementById('theme-toggle');
+    if (currentTheme === 'dark') {
+      themeToggle.checked = true;
+    }
+    themeToggle.addEventListener('change', toggleTheme);
+
+    // Load Alert State
+    const alertToggle = document.getElementById('alert-toggle');
+    const alertDisabled = localStorage.getItem('ems_alert_disabled');
+    if (alertDisabled === '1') {
+      alertToggle.checked = false;
+    }
+    alertToggle.addEventListener('change', () => {
+      if (alertToggle.checked) {
+        localStorage.removeItem('ems_alert_disabled');
+      } else {
+        localStorage.setItem('ems_alert_disabled', '1');
+      }
+      toast.success('บันทึกการตั้งค่าแจ้งเตือนเรียบร้อย');
+    });
+
+    // Save buttons
+    document.getElementById('btn-save-sheets')?.addEventListener('click', saveSheetsUrl);
+    document.getElementById('btn-export-db')?.addEventListener('click', exportDatabase);
+    document.getElementById('btn-seed-db')?.addEventListener('click', seedDbAction);
+    document.getElementById('btn-clear-db')?.addEventListener('click', clearDbAction);
+  }
+
+  function updateNetworkStatus() {
+    const netStatus = document.getElementById('pwa-network-status');
+    if (!netStatus) return;
+    if (navigator.onLine) {
+      netStatus.textContent = 'ออนไลน์ (เชื่อมต่ออินเทอร์เน็ต)';
+      netStatus.style.color = 'var(--color-success)';
+    } else {
+      netStatus.textContent = 'ออฟไลน์ (ทำงานแบบ Local)';
+      netStatus.style.color = 'var(--color-danger)';
+    }
+  }
+
+  async function saveSheetsUrl() {
+    const url = document.getElementById('sheets-url').value.trim();
+    const btn = document.getElementById('btn-save-sheets');
+
+    if (url && !url.startsWith('https://')) {
+      toast.error('รูปแบบ URL ไม่ถูกต้อง', 'URL ต้องขึ้นต้นด้วย https://');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+    try {
+      await setSetting('google_sheets_url', url);
+      toast.success('บันทึกสำเร็จ', 'เชื่อมต่อข้อมูลกูเกิลชีตเรียบร้อย');
+    } catch (err) {
+      toast.error('ล้มเหลว', err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-rounded">save</span> บันทึกการเชื่อมต่อ';
+    }
+  }
+
+  function toggleTheme(e) {
+    if (e.target.checked) {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('ems_theme', 'dark');
+      toast.success('เปิดใช้งานโหมดกลางคืน');
+    } else {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('ems_theme', 'light');
+      toast.success('เปิดใช้งานโหมดสว่าง');
+    }
+  }
+
+  async function exportDatabase() {
+    try {
+      const items = await getAllItems();
+      const tx = await getAllTransactions();
+      const checklists = await getAllChecklists();
+      
+      const backupData = {
+        exported_at: new Date().toISOString(),
+        items,
+        transactions: tx,
+        checklists
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href",     dataStr);
+      downloadAnchor.setAttribute("download", `EMS_Stock_Backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      toast.success('สำรองข้อมูลเครื่องสำเร็จ', 'ดาวน์โหลดไฟล์ JSON สำรองข้อมูลเรียบร้อย');
+    } catch (err) {
+      toast.error('สำรองข้อมูลล้มเหลว', err.message);
+    }
+  }
+
+  function seedDbAction() {
+    confirmDialog('คุณต้องการรีเซ็ตและคืนค่าข้อมูลสต๊อกเวชภัณฑ์และบัญชีผู้ใช้ตั้งต้นใหม่ใช่หรือไม่? ประวัติธุรกรรมเดิมของคุณจะหายไปทั้งหมด', async () => {
+      try {
+        const db = await openDB();
+        const tx = db.transaction(['items', 'transactions', 'checklists', 'notifications', 'sync_queue', 'users'], 'readwrite');
+        tx.objectStore('items').clear();
+        tx.objectStore('transactions').clear();
+        tx.objectStore('checklists').clear();
+        tx.objectStore('notifications').clear();
+        tx.objectStore('sync_queue').clear();
+        tx.objectStore('users').clear();
+        
+        // Wait transaction finish
+        await new Promise((resolve, reject) => {
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+
+        localStorage.removeItem('low_stock_alerted');
+        sessionStorage.removeItem('ems_session');
+
+        toast.success('รีเซ็ตฐานข้อมูลสำเร็จ', 'กำลังนำคุณกลับไปหน้าเริ่มต้นเพื่อ Seed ข้อมูล...');
+        setTimeout(() => {
+          window.location.href = '../index.html';
+        }, 1200);
+      } catch (err) {
+        toast.error('รีเซ็ตล้มเหลว', err.message);
+      }
+    });
+  }
+
+  function clearDbAction() {
+    confirmDialog('⚠️ คำเตือน: คุณต้องการลบฐานข้อมูล Local ทั้งหมดออกเลยใช่หรือไม่? บัญชีผู้ใช้และอุปกรณ์ทั้งหมดจะถูกลบหายไปอย่างถาวร', async () => {
+      try {
+        const req = indexedDB.deleteDatabase('EMSStockDB');
+        req.onsuccess = () => {
+          localStorage.clear();
+          sessionStorage.clear();
+          toast.success('ลบฐานข้อมูลทั้งหมดสำเร็จ', 'กำลังนำท่านกลับหน้าเข้าสู่ระบบ...');
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 1500);
+        };
+        req.onerror = () => {
+          toast.error('ลบฐานข้อมูลล้มเหลว');
+        };
+      } catch (err) {
+        toast.error('เกิดข้อผิดพลาด', err.message);
+      }
+    });
+  }
+
+  // Responsive Layout
+  function checkLayout() {
+    const layout = document.getElementById('settings-layout');
+    if (layout && window.innerWidth < 900) {
+      layout.style.gridTemplateColumns = '1fr';
+    } else if (layout) {
+      layout.style.gridTemplateColumns = '1.2fr 0.8fr';
+    }
+  }
+  window.addEventListener('resize', checkLayout);
+  checkLayout();
+
+  init().catch(console.error);
+</script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>รับพัสดุเข้า — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div id="page-loader"><div class="loader-logo">🏥</div><div class="loader-text">EMS Stock Manager</div><div class="loader-sub">รับพัสดุเข้า</div><div class="loader-bar"></div></div>
+<div id="scanner-container">
+  <button class="scanner-close" id="scanner-close-btn"><span class="material-symbols-rounded">close</span></button>
+  <video id="scanner-video" autoplay playsinline muted></video>
+  <div class="scanner-overlay">
+    <div class="scanner-corner tl"></div><div class="scanner-corner tr"></div>
+    <div class="scanner-corner bl"></div><div class="scanner-corner br"></div>
+    <div class="scanner-line"></div>
+  </div>
+  <p class="scanner-hint">จ่อกล้องไปที่ QR Code หรือ Barcode ของพัสดุ</p>
+</div>
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main class="page-content page-enter">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-header-title">
+            <span class="material-symbols-rounded">add_shopping_cart</span>
+            รับพัสดุเข้าคลัง
+          </div>
+          <div class="page-header-subtitle">สแกนหรือค้นหาพัสดุเพื่อบันทึกการรับเข้า</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;" id="receive-layout">
+        <!-- Left: Scan & Search -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- Scan button -->
+          <button class="scan-btn" id="scan-btn">
+            <span class="material-symbols-rounded">qr_code_scanner</span>
+            <span class="scan-btn-text">สแกน QR Code / Barcode</span>
+            <span class="scan-btn-sub">กดเพื่อเปิดกล้องสแกน</span>
+          </button>
+
+          <!-- Manual search -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-symbols-rounded">search</span> ค้นหาด้วยชื่อ / บาร์โค้ด</div>
+            </div>
+            <div class="card-body">
+              <div class="input-group">
+                <span class="material-symbols-rounded input-icon">inventory_2</span>
+                <input type="text" id="item-search" class="form-control" placeholder="พิมพ์ชื่อหรือรหัสพัสดุ..." autocomplete="off" />
+              </div>
+              <div id="search-results" style="margin-top:8px;"></div>
+            </div>
+          </div>
+
+          <!-- Recent receives -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-symbols-rounded">history</span> รับเข้าล่าสุด</div>
+            </div>
+            <div id="recent-receives">
+              <div style="padding:16px;text-align:center;">
+                <div class="spinner dark" style="margin:0 auto;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Transaction Form -->
+        <div id="form-panel">
+          <!-- Placeholder -->
+          <div class="card" id="form-placeholder">
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="empty-state-icon" style="background:var(--primary-50);">
+                  <span class="material-symbols-rounded" style="color:var(--primary-800);">qr_code_scanner</span>
+                </div>
+                <div class="empty-state-title">รอการสแกน</div>
+                <div class="empty-state-text">สแกน QR Code หรือค้นหาชื่อพัสดุก่อนบันทึกการรับเข้า</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item + Form (hidden initially) -->
+          <div id="receive-form-wrap" style="display:none;flex-direction:column;gap:16px;">
+            <!-- Item card -->
+            <div class="card" id="selected-item-card"></div>
+
+            <!-- Form -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span class="material-symbols-rounded" style="color:var(--color-success);">add_circle</span>
+                  บันทึกการรับเข้า
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                  <div class="form-group">
+                    <label class="form-label">จำนวนที่รับเข้า <span class="required">*</span></label>
+                    <div class="input-group">
+                      <span class="material-symbols-rounded input-icon">add_box</span>
+                      <input type="number" id="recv-qty" class="form-control" min="1" placeholder="0" style="font-size:20px;font-weight:700;" />
+                    </div>
+                    <div class="form-text">หน่วย: <span id="recv-unit">—</span></div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">หมายเหตุ</label>
+                    <textarea id="recv-remarks" class="form-control" rows="3" placeholder="แหล่งที่รับมา, เลขที่ PO, ฯลฯ"></textarea>
+                  </div>
+                  <div id="recv-error" class="alert alert-danger" style="display:none;">
+                    <span class="material-symbols-rounded">error</span>
+                    <span id="recv-error-text"></span>
+                  </div>
+                  <button class="btn btn-success btn-lg w-full" id="btn-confirm-receive">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    ยืนยันการรับเข้า
+                  </button>
+                  <button class="btn btn-ghost w-full" id="btn-cancel-receive">
+                    <span class="material-symbols-rounded">close</span> ยกเลิก
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Success modal -->
+<div class="modal-overlay" id="success-modal">
+  <div class="modal modal-sm">
+    <div class="modal-body" style="text-align:center;padding:40px 32px;">
+      <svg class="success-check" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="30"/>
+        <polyline points="20,32 28,42 44,24"/>
+      </svg>
+      <h3 style="margin:20px 0 8px;font-size:20px;">บันทึกสำเร็จ!</h3>
+      <p id="success-msg" style="color:var(--text-muted);font-size:14px;"></p>
+      <div id="success-detail" style="margin-top:16px;padding:16px;background:var(--neutral-50);border-radius:var(--radius-md);text-align:left;font-size:13px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary w-full" id="success-close-btn">รับรายการถัดไป</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import { initApp, getCurrentLocation } from '../js/app.js';
+import { getAllItems, getItemByBarcode, getAllTransactions, addTransaction } from '../js/db.js';
+import { openScanner, closeScanner } from '../js/scanner.js';
+import { generateQR } from '../js/qrgen.js';
+import { toast, formatDateTime } from '../js/notifications.js';
+import { getCurrentUser } from '../js/auth.js';
+
+let selectedItem = null;
+
+async function init() {
+  await initApp('รับพัสดุเข้า', 'Receive Stock');
+  renderRecentReceives();
+
+  // Scan
+  document.getElementById('scan-btn')?.addEventListener('click', () => {
+    openScanner(async code => {
+      await selectByBarcode(code);
+    }, null);
+  });
+  document.getElementById('scanner-close-btn')?.addEventListener('click', () => closeScanner());
+
+  // Search
+  let searchTimeout;
+  document.getElementById('item-search')?.addEventListener('input', e => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => searchItems(e.target.value), 300);
+  });
+
+  // Form actions
+  document.getElementById('btn-confirm-receive')?.addEventListener('click', confirmReceive);
+  document.getElementById('btn-cancel-receive')?.addEventListener('click', resetForm);
+  document.getElementById('success-close-btn')?.addEventListener('click', () => {
+    document.getElementById('success-modal').classList.remove('active');
+    resetForm();
+  });
+}
+
+async function selectByBarcode(code) {
+  const item = await getItemByBarcode(code);
+  if (!item) {
+    toast.error('ไม่พบรายการ', `ไม่พบพัสดุรหัส "${code}" ในระบบ`);
+    return;
+  }
+  selectItem(item);
+}
+
+async function searchItems(q) {
+  const resultsEl = document.getElementById('search-results');
+  if (!q.trim()) { resultsEl.innerHTML = ''; return; }
+  const items = await getAllItems();
+  const found = items.filter(i =>
+    i.item_name?.toLowerCase().includes(q.toLowerCase()) ||
+    i.barcode?.toLowerCase().includes(q.toLowerCase())
+  ).slice(0, 6);
+
+  if (found.length === 0) {
+    resultsEl.innerHTML = `<div style="padding:12px;text-align:center;font-size:13px;color:var(--text-muted);">ไม่พบรายการ</div>`;
+    return;
+  }
+  resultsEl.innerHTML = found.map(item => `
+    <div onclick="window._selectItem(${item.item_id})"
+      style="padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:4px;border:1px solid var(--border-light);transition:background 0.15s;">
+      <div style="width:32px;height:32px;background:var(--primary-50);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span class="material-symbols-rounded" style="font-size:16px;color:var(--primary-800);">medication</span>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">${item.item_name}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${item.barcode} | สต๊อก: ${item.current_stock} ${item.unit}</div>
+      </div>
+      <span class="badge ${item.current_stock <= item.minimum_stock ? 'badge-warning' : 'badge-success'}">
+        ${item.current_stock} ${item.unit}
+      </span>
+    </div>
+  `).join('');
+}
+
+window._selectItem = async function(id) {
+  const items = await getAllItems();
+  const item  = items.find(i => i.item_id === id);
+  if (item) {
+    selectItem(item);
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('item-search').value = '';
+  }
+};
+
+function selectItem(item) {
+  selectedItem = item;
+  document.getElementById('form-placeholder').style.display   = 'none';
+  document.getElementById('receive-form-wrap').style.display  = 'flex';
+  document.getElementById('recv-unit').textContent = item.unit;
+  document.getElementById('recv-qty').focus();
+
+  // Selected item info card
+  const card = document.getElementById('selected-item-card');
+  const level = item.current_stock <= item.minimum_stock ? 'low' : 'high';
+  card.innerHTML = `
+    <div class="card-body">
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div style="width:56px;height:56px;background:var(--primary-50);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-rounded" style="font-size:28px;color:var(--primary-800);">medication</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">${item.item_name}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="badge badge-primary">${item.category}</span>
+            <span class="badge badge-neutral">${item.location}</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:24px;font-weight:800;color:${level==='low'?'var(--color-warning)':'var(--color-success)'};">${item.current_stock}</div>
+          <div style="font-size:11px;color:var(--text-muted);">/ ${item.minimum_stock} ${item.unit}<br>สต๊อกปัจจุบัน</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);display:flex;gap:16px;font-size:12px;color:var(--text-muted);">
+        <span><strong>บาร์โค้ด:</strong> ${item.barcode}</span>
+        <span><strong>หน่วย:</strong> ${item.unit}</span>
+      </div>
+    </div>
+  `;
+}
+
+async function confirmReceive() {
+  if (!selectedItem) return;
+
+  const qty     = parseInt(document.getElementById('recv-qty').value);
+  const remarks = document.getElementById('recv-remarks').value.trim();
+  const errEl   = document.getElementById('recv-error');
+  const errTx   = document.getElementById('recv-error-text');
+  const user    = getCurrentUser();
+
+  if (!qty || qty <= 0) {
+    errTx.textContent = 'กรุณาระบุจำนวนที่รับเข้า (ต้องมากกว่า 0)';
+    errEl.style.display = 'flex';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('btn-confirm-receive');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+  try {
+    await addTransaction({
+      item_id:          selectedItem.item_id,
+      barcode:          selectedItem.barcode,
+      transaction_type: 'Receive',
+      quantity:         qty,
+      balance_after_transaction: selectedItem.current_stock + qty,
+      remarks,
+      user_name:        user.full_name,
+    });
+
+    // Show success
+    document.getElementById('success-msg').textContent = `รับ "${selectedItem.item_name}" เข้าคลังสำเร็จ`;
+    document.getElementById('success-detail').innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="color:var(--text-muted);">รับเข้า:</span>
+        <strong style="color:var(--color-success);">+${qty} ${selectedItem.unit}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="color:var(--text-muted);">สต๊อกก่อน:</span>
+        <span>${selectedItem.current_stock} ${selectedItem.unit}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--text-muted);">สต๊อกหลัง:</span>
+        <strong style="color:var(--primary-800);">${selectedItem.current_stock + qty} ${selectedItem.unit}</strong>
+      </div>
+    `;
+    document.getElementById('success-modal').classList.add('active');
+    renderRecentReceives();
+  } catch (err) {
+    toast.error('บันทึกล้มเหลว', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-rounded">check_circle</span> ยืนยันการรับเข้า';
+  }
+}
+
+function resetForm() {
+  selectedItem = null;
+  document.getElementById('form-placeholder').style.display   = 'block';
+  document.getElementById('receive-form-wrap').style.display  = 'none';
+  document.getElementById('recv-qty').value     = '';
+  document.getElementById('recv-remarks').value = '';
+  document.getElementById('recv-error').style.display = 'none';
+}
+
+async function renderRecentReceives() {
+  const txAll = await getAllTransactions();
+  const receives = txAll.filter(t => t.transaction_type === 'Receive').slice(0, 5);
+  const el = document.getElementById('recent-receives');
+  if (!el) return;
+  if (receives.length === 0) {
+    el.innerHTML = `<div style="padding:20px;text-align:center;font-size:13px;color:var(--text-muted);">ยังไม่มีรายการ</div>`;
+    return;
+  }
+  el.innerHTML = receives.map(t => `
+    <div style="padding:12px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;background:var(--color-success-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span class="material-symbols-rounded" style="font-size:16px;color:var(--color-success);">add_circle</span>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.barcode}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${t.user_name} · ${formatDateTime(t.datetime)}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--color-success);">+${t.quantity}</div>
+    </div>
+  `).join('');
+}
+
+// Responsive layout
+function checkLayout() {
+  const layout = document.getElementById('receive-layout');
+  if (layout && window.innerWidth < 900) {
+    layout.style.gridTemplateColumns = '1fr';
+  }
+}
+window.addEventListener('resize', checkLayout);
+checkLayout();
+
+init().catch(console.error);
+</script>
+
+</body>
+</html>

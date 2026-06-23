@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ตรวจสอบรถ EMS — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+</head>
+<body>
+<div id="page-loader"><div class="loader-logo">🏥</div><div class="loader-text">EMS Stock Manager</div><div class="loader-sub">ตรวจสอบอุปกรณ์บนรถฉุกเฉิน</div><div class="loader-bar"></div></div>
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+    <main class="page-content page-enter">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-header-title">
+            <span class="material-symbols-rounded">checklist</span>
+            ตรวจสอบรถฉุกเฉินประจำวัน
+          </div>
+          <div class="page-header-subtitle">ตรวจสอบความพร้อมของอุปกรณ์และเวชภัณฑ์ประจำรถกู้ชีพ EMS</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;align-items:start;" id="checklist-layout">
+        <!-- Left: Form to Inspect -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="material-symbols-rounded" style="color:var(--primary-800);">medical_services</span>
+                บันทึกการตรวจสอบอุปกรณ์ประจำรถ
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:20px;">
+                <div class="form-group" style="max-width:320px;">
+                  <label class="form-label">เลือกรถกู้ชีพ / สถานที่ตรวจ <span class="required">*</span></label>
+                  <select id="inspect-location" class="form-control" style="font-weight:600;">
+                    <option value="Ambulance 1">🚑 Ambulance 1</option>
+                    <option value="Ambulance 2">🚑 Ambulance 2</option>
+                    <option value="Ambulance 3">🚑 Ambulance 3</option>
+                    <option value="Emergency Room">🏥 Emergency Room</option>
+                  </select>
+                </div>
+
+                <!-- Checklist Items Grid -->
+                <div>
+                  <h4 style="font-size:14px;color:var(--text-primary);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:6px;">
+                    <span class="material-symbols-rounded" style="font-size:16px;">fact_check</span> รายการอุปกรณ์ที่ต้องตรวจเช็ค
+                  </h4>
+
+                  <div style="display:flex;flex-direction:column;gap:12px;" id="checklist-items-container">
+                    <!-- Loaded dynamically in JS -->
+                  </div>
+                </div>
+
+                <!-- General Notes -->
+                <div class="form-group">
+                  <label class="form-label">ความเห็น / หมายเหตุเพิ่มเติม</label>
+                  <textarea id="inspect-notes" class="form-control" rows="3" placeholder="ระบุปัญหาระบบไฟ ยานพาหนะ หรือสิ่งผิดปกติอื่นๆ (ถ้ามี)..."></textarea>
+                </div>
+
+                <div id="checklist-error" class="alert alert-danger" style="display:none;">
+                  <span class="material-symbols-rounded">error</span>
+                  <span id="checklist-error-text"></span>
+                </div>
+
+                <button class="btn btn-primary btn-lg w-full" id="btn-save-checklist">
+                  <span class="material-symbols-rounded">save</span>
+                  บันทึกผลการตรวจสอบ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Log History -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="material-symbols-rounded">history</span>
+                ประวัติการตรวจเช็ค (10 รายการล่าสุด)
+              </div>
+            </div>
+            <div id="checklist-history" style="max-height:600px;overflow-y:auto;">
+              <div style="padding:20px;text-align:center;">
+                <div class="spinner dark" style="margin:0 auto;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Checklist Details Modal -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+        <span class="material-symbols-rounded" style="color:var(--primary-800);">fact_check</span>
+        <span>รายละเอียดการตรวจเช็ค</span>
+      </div>
+      <button class="btn-icon" onclick="document.getElementById('detail-modal').classList.remove('active')">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <div class="modal-body" id="detail-modal-body">
+      <!-- Loaded dynamically -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary w-full" onclick="document.getElementById('detail-modal').classList.remove('active')">ปิดหน้าต่าง</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { initApp } from '../js/app.js';
+  import { saveChecklist, getAllChecklists } from '../js/db.js';
+  import { getCurrentUser } from '../js/auth.js';
+  import { toast, formatDateTime } from '../js/notifications.js';
+
+  // Standard Items to verify on each EMS Ambulance / ER
+  const INSPECT_ITEMS = [
+    { key: 'o2_tank',   label: 'ออกซิเจนถังหลัก (Oxygen Tank)',   expected: 'ปกติ / ความดัน > 1,000 PSI', icon: 'lungs' },
+    { key: 'bvm',       label: 'หน้ากากช่วยหายใจ (BVM Adult/Ped)', expected: 'มีครบชุด / ซิลิโคนไม่รั่ว', icon: 'masks' },
+    { key: 'iv_set',     label: 'ชุดเข็มและสายให้น้ำเกลือ (IV Set)',expected: 'มีครบไซส์ / ซองปิดสนิท', icon: 'vaccines' },
+    { key: 'defib',     label: 'เครื่อง Defibrillator / Pads',     expected: 'แบตเตอรี่เต็ม / แผ่นยังไม่หมดอายุ', icon: 'bolt' },
+    { key: 'adrenaline',label: 'ยา Adrenaline (Epinephrine)',    expected: 'มีสำรองอย่างน้อย 10 Amp / ไม่หมดอายุ', icon: 'medication' },
+    { key: 'suction',   label: 'เครื่องดูดเสมหะ (Suction Catheter)', expected: 'เครื่องทำงาน / สายสะอาด', icon: 'airwave' },
+  ];
+
+  let currentUser = null;
+
+  async function init() {
+    currentUser = await initApp('ตรวจสอบรถ EMS', 'EMS Checklist');
+    renderChecklistForm();
+    await renderChecklistHistory();
+
+    // Event listener
+    document.getElementById('btn-save-checklist')?.addEventListener('click', saveInspect);
+  }
+
+  function renderChecklistForm() {
+    const container = document.getElementById('checklist-items-container');
+    if (!container) return;
+
+    container.innerHTML = INSPECT_ITEMS.map((item, idx) => `
+      <div style="background:var(--neutral-50);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:240px;flex:1;">
+          <div style="width:36px;height:36px;background:var(--primary-50);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary-800);flex-shrink:0;">
+            <span class="material-symbols-rounded" style="font-size:20px;">${item.icon}</span>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${item.label}</div>
+            <div style="font-size:11px;color:var(--text-muted);">เกณฑ์มาตรฐาน: ${item.expected}</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
+          <!-- Pass/Fail radio toggles -->
+          <div style="display:flex;background:var(--neutral-200);border-radius:var(--radius-full);padding:3px;gap:2px;">
+            <label class="toggle-pill-btn">
+              <input type="radio" name="status-${item.key}" value="pass" checked style="display:none;" />
+              <span class="toggle-pill-label pass">ผ่าน</span>
+            </label>
+            <label class="toggle-pill-btn">
+              <input type="radio" name="status-${item.key}" value="fail" style="display:none;" />
+              <span class="toggle-pill-label fail">ไม่ผ่าน</span>
+            </label>
+          </div>
+
+          <!-- Note/remarks -->
+          <input type="text" id="remark-${item.key}" class="form-control" placeholder="ระบุปัญหา (หากไม่ผ่าน)..." style="width:160px;font-size:12px;padding:6px 10px;" />
+        </div>
+      </div>
+    `).join('');
+
+    // Style dynamically appended toggles
+    const style = document.createElement('style');
+    style.textContent = `
+      .toggle-pill-btn input[type="radio"]:checked + .toggle-pill-label.pass {
+        background: var(--color-success);
+        color: white;
+      }
+      .toggle-pill-btn input[type="radio"]:checked + .toggle-pill-label.fail {
+        background: var(--color-danger);
+        color: white;
+      }
+      .toggle-pill-label {
+        display: block;
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: all 0.2s ease;
+        text-align: center;
+      }
+      .toggle-pill-label:hover {
+        background: rgba(0,0,0,0.05);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  async function saveInspect() {
+    const loc = document.getElementById('inspect-location').value;
+    const notes = document.getElementById('inspect-notes').value.trim();
+    const btn = document.getElementById('btn-save-checklist');
+
+    const results = {};
+    let hasFail = false;
+
+    for (const item of INSPECT_ITEMS) {
+      const status = document.querySelector(`input[name="status-${item.key}"]:checked`).value;
+      const remark = document.getElementById(`remark-${item.key}`).value.trim();
+      results[item.key] = {
+        label: item.label,
+        status: status, // pass or fail
+        remark: remark
+      };
+      if (status === 'fail') {
+        hasFail = true;
+      }
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+    try {
+      const checklistObj = {
+        date: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
+        datetime: new Date().toISOString(),
+        location: loc,
+        inspector: currentUser.full_name,
+        results: results,
+        notes: notes,
+        overall_status: hasFail ? 'fail' : 'pass'
+      };
+
+      await saveChecklist(checklistObj);
+      toast.success('บันทึกการตรวจสอบเรียบร้อย', hasFail ? 'พบอุปกรณ์ไม่ผ่านเกณฑ์ กรุณารีบแก้ไข' : 'ตรวจสอบความพร้อมอุปกรณ์ผ่าน 100%');
+
+      // Reset form notes
+      document.getElementById('inspect-notes').value = '';
+      INSPECT_ITEMS.forEach(item => {
+        document.querySelector(`input[name="status-${item.key}"][value="pass"]`).checked = true;
+        document.getElementById(`remark-${item.key}`).value = '';
+      });
+
+      await renderChecklistHistory();
+    } catch (err) {
+      toast.error('ล้มเหลว', err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-rounded">save</span> บันทึกผลการตรวจสอบ';
+    }
+  }
+
+  async function renderChecklistHistory() {
+    const list = await getAllChecklists();
+    const el = document.getElementById('checklist-history');
+    if (!el) return;
+
+    if (list.length === 0) {
+      el.innerHTML = `
+        <div class="empty-state" style="padding:32px 16px;">
+          <div class="empty-state-icon"><span class="material-symbols-rounded">inventory</span></div>
+          <div class="empty-state-title">ไม่มีประวัติการตรวจเช็ค</div>
+        </div>
+      `;
+      return;
+    }
+
+    el.innerHTML = list.slice(0, 10).map(c => {
+      const isPass = c.overall_status === 'pass';
+      const statusBadge = isPass
+        ? '<span class="badge badge-success">ผ่านปกติ</span>'
+        : '<span class="badge badge-danger">พบปัญหา</span>';
+      return `
+        <div onclick="window._viewChecklistDetails(${c.checklist_id})"
+          style="padding:14px 20px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+              <span>${c.location}</span>
+              ${statusBadge}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">ผู้ตรวจ: ${c.inspector}</div>
+            <div style="font-size:10px;color:var(--neutral-400);margin-top:2px;">${formatDateTime(c.datetime)}</div>
+          </div>
+          <span class="material-symbols-rounded" style="color:var(--neutral-400);">chevron_right</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window._viewChecklistDetails = async function(id) {
+    const list = await getAllChecklists();
+    const c = list.find(chk => chk.checklist_id === id);
+    if (!c) return;
+
+    const modalBody = document.getElementById('detail-modal-body');
+    if (!modalBody) return;
+
+    const isPass = c.overall_status === 'pass';
+    const statusText = isPass
+      ? '<span style="color:var(--color-success);font-weight:700;">ผ่านปกติ (All Checked)</span>'
+      : '<span style="color:var(--color-danger);font-weight:700;">พบปัญหาอุปกรณ์ชำรุด/ไม่ครบ</span>';
+
+    let itemsHtml = Object.entries(c.results).map(([key, val]) => {
+      const checkPass = val.status === 'pass';
+      const badge = checkPass
+        ? '<span class="badge badge-success" style="font-size:10px;padding:3px 8px;">ผ่าน</span>'
+        : '<span class="badge badge-danger" style="font-size:10px;padding:3px 8px;">ไม่ผ่าน</span>';
+      const remarkText = val.remark ? `<div style="font-size:11px;color:var(--color-danger);margin-top:4px;">⚠️ หมายเหตุ: ${val.remark}</div>` : '';
+
+      return `
+        <div style="padding:10px 14px;background:var(--neutral-50);border:1px solid var(--border-light);border-radius:var(--radius-md);margin-bottom:8px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-primary);">${val.label}</div>
+            ${remarkText}
+          </div>
+          ${badge}
+        </div>
+      `;
+    }).join('');
+
+    modalBody.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;border-bottom:1px solid var(--border-light);padding-bottom:12px;">
+          <div><strong>สถานที่ตรวจ:</strong> ${c.location}</div>
+          <div><strong>ผู้ตรวจสอบ:</strong> ${c.inspector}</div>
+          <div><strong>วันเวลาที่ตรวจ:</strong> ${formatDateTime(c.datetime)}</div>
+          <div><strong>ผลสรุปภาพรวม:</strong> ${statusText}</div>
+        </div>
+
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">รายละเอียดรายข้อ:</div>
+          ${itemsHtml}
+        </div>
+
+        ${c.notes ? `
+          <div style="padding:10px 14px;background:rgba(21,101,192,0.04);border-left:4px solid var(--primary-800);border-radius:var(--radius-sm);font-size:12px;">
+            <strong>หมายเหตุเพิ่มเติมจากผู้ตรวจ:</strong>
+            <p style="margin-top:4px;color:var(--text-secondary);line-height:1.5;">${c.notes}</p>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    document.getElementById('detail-modal').classList.add('active');
+  };
+
+  // Check layout on resize
+  function checkLayout() {
+    const layout = document.getElementById('checklist-layout');
+    if (layout && window.innerWidth < 900) {
+      layout.style.gridTemplateColumns = '1fr';
+    } else if (layout) {
+      layout.style.gridTemplateColumns = '1.2fr 0.8fr';
+    }
+  }
+  window.addEventListener('resize', checkLayout);
+  checkLayout();
+
+  init().catch(console.error);
+</script>
+</body>
+</html>

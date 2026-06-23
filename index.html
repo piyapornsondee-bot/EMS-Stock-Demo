@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EMS Stock Manager — ระบบบริหารจัดการคลังพัสดุการแพทย์สำหรับหน่วย EMS" />
+  <title>EMS Stock Manager — เข้าสู่ระบบ</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+
+<body>
+
+  <!-- Page Loader -->
+  <div id="page-loader">
+    <div class="loader-logo">🏥</div>
+    <div class="loader-text">EMS Stock Manager</div>
+    <div class="loader-sub">Medical Inventory System</div>
+    <div class="loader-bar"></div>
+  </div>
+
+  <!-- Login Page -->
+  <div class="login-page" id="login-page" style="opacity:0;transition:opacity 0.5s ease;">
+    <!-- Left Panel -->
+    <div class="login-left">
+      <div style="position:relative;z-index:1;text-align:center;max-width:360px;">
+        <div
+          style="width:88px;height:88px;background:rgba(255,255,255,.15);backdrop-filter:blur(12px);border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 32px;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+          <img src="assets/logo.svg" alt="EMS Stock Manager Logo" style="width:56px;height:56px;display:block;" />
+        </div>
+
+        <h1 style="color:white;font-size:28px;font-weight:800;margin-bottom:12px;letter-spacing:-0.5px;">
+          EMS Stock Manager
+        </h1>
+        <p style="color:rgba(255,255,255,.65);font-size:15px;line-height:1.6;margin-bottom:40px;">
+          ระบบบริหารจัดการคลังพัสดุการแพทย์<br>สำหรับหน่วย EMS และโรงพยาบาล
+        </p>
+
+        <!-- Feature pills -->
+        <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:40px;">
+          <div
+            style="background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:7px 16px;font-size:12px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px;">
+            <span class="material-symbols-rounded" style="font-size:15px;">qr_code_scanner</span> QR Scan
+          </div>
+          <div
+            style="background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:7px 16px;font-size:12px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px;">
+            <span class="material-symbols-rounded" style="font-size:15px;">notifications_active</span> แจ้งเตือนสต๊อกต่ำ
+          </div>
+          <div
+            style="background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:7px 16px;font-size:12px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px;">
+            <span class="material-symbols-rounded" style="font-size:15px;">backup</span> Google Sheets
+          </div>
+          <div
+            style="background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:7px 16px;font-size:12px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px;">
+            <span class="material-symbols-rounded" style="font-size:15px;">offline_bolt</span> ทำงานออฟไลน์ได้
+          </div>
+        </div>
+
+        <!-- Stats showcase -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+          <div style="background:rgba(255,255,255,.08);border-radius:16px;padding:16px 8px;text-align:center;">
+            <div style="font-size:24px;font-weight:800;color:white;">26+</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">พัสดุ EMS</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:16px;padding:16px 8px;text-align:center;">
+            <div style="font-size:24px;font-weight:800;color:white;">5</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">สถานที่</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:16px;padding:16px 8px;text-align:center;">
+            <div style="font-size:24px;font-weight:800;color:white;">3</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">ระดับสิทธิ์</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel (Form) -->
+    <div class="login-right">
+      <div class="login-form-wrap anim-fade-in-up">
+        <!-- Mobile logo -->
+        <div style="display:none;flex-direction:column;align-items:center;margin-bottom:32px;" class="mobile-logo">
+          <div
+            style="width:72px;height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+            <img src="assets/logo.svg" alt="EMS Stock Manager Logo" style="width:72px;height:72px;display:block;" />
+          </div>
+          <h1 style="font-size:22px;color:var(--text-primary);margin-bottom:4px;">EMS Stock Manager</h1>
+          <p style="font-size:13px;color:var(--text-muted);">ระบบบริหารจัดการคลังพัสดุการแพทย์</p>
+        </div>
+
+        <!-- Tab switcher -->
+        <div
+          style="display:flex;background:var(--neutral-100);border-radius:var(--radius-lg);padding:4px;margin-bottom:28px;gap:4px;">
+          <button id="tab-login" onclick="switchTab('login')"
+            style="flex:1;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-md);cursor:pointer;transition:all 0.2s;font-family:inherit;background:white;color:var(--primary-800);box-shadow:var(--shadow-sm);">
+            <span class="material-symbols-rounded"
+              style="font-size:15px;vertical-align:middle;margin-right:4px;">login</span>เข้าสู่ระบบ
+          </button>
+          <button id="tab-register" onclick="switchTab('register')"
+            style="flex:1;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-md);cursor:pointer;transition:all 0.2s;font-family:inherit;background:transparent;color:var(--text-muted);">
+            <span class="material-symbols-rounded"
+              style="font-size:15px;vertical-align:middle;margin-right:4px;">person_add</span>สมัครสมาชิก
+          </button>
+        </div>
+
+        <!-- ─── LOGIN PANEL ─── -->
+        <div id="panel-login">
+          <div style="margin-bottom:24px;">
+            <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">ยินดีต้อนรับ</h2>
+            <p style="color:var(--text-muted);font-size:13px;">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
+          </div>
+
+          <div id="login-error" class="alert alert-danger" style="display:none;margin-bottom:16px;">
+            <span class="material-symbols-rounded">error</span>
+            <span id="login-error-text"></span>
+          </div>
+
+          <form id="login-form" novalidate>
+            <div class="form-group" style="margin-bottom:18px;">
+              <label class="form-label" for="login-email">
+                <span class="material-symbols-rounded" style="font-size:15px;">email</span>อีเมล
+              </label>
+              <div class="input-group">
+                <span class="material-symbols-rounded input-icon">alternate_email</span>
+                <input type="email" id="login-email" class="form-control" placeholder="example@ems.local" required
+                  autocomplete="email" />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:18px;">
+              <label class="form-label" for="login-password">
+                <span class="material-symbols-rounded" style="font-size:15px;">lock</span>รหัสผ่าน
+              </label>
+              <div class="input-group">
+                <span class="material-symbols-rounded input-icon">lock_outline</span>
+                <input type="password" id="login-password" class="form-control has-right-icon" placeholder="••••••••"
+                  required autocomplete="current-password" />
+                <span class="material-symbols-rounded input-icon-right" id="toggle-pw"
+                  style="cursor:pointer;">visibility</span>
+              </div>
+            </div>
+            <div style="margin-bottom:24px;">
+              <label class="checkbox-wrap">
+                <input type="checkbox" id="remember-me" />
+                <span style="font-size:13px;color:var(--text-secondary);">จำฉันไว้</span>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-full" id="login-btn">
+              <span class="material-symbols-rounded">login</span>เข้าสู่ระบบ
+            </button>
+          </form>
+        </div>
+
+        <!-- ─── REGISTER PANEL ─── -->
+        <div id="panel-register" style="display:none;">
+          <div style="margin-bottom:24px;">
+            <h2 style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">สมัครสมาชิกใหม่</h2>
+            <p style="color:var(--text-muted);font-size:13px;">บัญชีใหม่จะได้รับสิทธิ์ <span
+                style="color:var(--color-success);font-weight:700;">Staff</span> โดยอัตโนมัติ</p>
+          </div>
+
+          <div id="reg-error" class="alert alert-danger" style="display:none;margin-bottom:16px;">
+            <span class="material-symbols-rounded">error</span>
+            <span id="reg-error-text"></span>
+          </div>
+          <div id="reg-success" class="alert alert-success" style="display:none;margin-bottom:16px;">
+            <span class="material-symbols-rounded">check_circle</span>
+            <span id="reg-success-text"></span>
+          </div>
+
+          <form id="register-form" novalidate>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+              <div class="form-group">
+                <label class="form-label" for="reg-firstname">
+                  <span class="material-symbols-rounded" style="font-size:15px;">badge</span>ชื่อ
+                </label>
+                <input type="text" id="reg-firstname" class="form-control" placeholder="ชื่อ" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-lastname">
+                  <span class="material-symbols-rounded" style="font-size:15px;">badge</span>นามสกุล
+                </label>
+                <input type="text" id="reg-lastname" class="form-control" placeholder="นามสกุล" required />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:18px;">
+              <label class="form-label" for="reg-email">
+                <span class="material-symbols-rounded" style="font-size:15px;">email</span>อีเมล
+              </label>
+              <div class="input-group">
+                <span class="material-symbols-rounded input-icon">alternate_email</span>
+                <input type="email" id="reg-email" class="form-control" placeholder="yourname@ems.local" required
+                  autocomplete="off" />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:18px;">
+              <label class="form-label" for="reg-password">
+                <span class="material-symbols-rounded" style="font-size:15px;">lock</span>ตั้งรหัสผ่าน
+              </label>
+              <div class="input-group">
+                <span class="material-symbols-rounded input-icon">lock_outline</span>
+                <input type="password" id="reg-password" class="form-control has-right-icon"
+                  placeholder="อย่างน้อย 6 ตัวอักษร" required autocomplete="new-password" />
+                <span class="material-symbols-rounded input-icon-right" id="toggle-reg-pw"
+                  style="cursor:pointer;">visibility</span>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:24px;">
+              <label class="form-label" for="reg-password2">
+                <span class="material-symbols-rounded" style="font-size:15px;">lock_reset</span>ยืนยันรหัสผ่าน
+              </label>
+              <div class="input-group">
+                <span class="material-symbols-rounded input-icon">lock_outline</span>
+                <input type="password" id="reg-password2" class="form-control" placeholder="กรอกรหัสผ่านอีกครั้ง"
+                  required autocomplete="new-password" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success btn-lg w-full" id="register-btn">
+              <span class="material-symbols-rounded">person_add</span>สมัครสมาชิก
+            </button>
+          </form>
+        </div>
+
+        <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:24px;">
+          EMS Stock Manager v1.0 &nbsp;|&nbsp; Medical Inventory System
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { login, isLoggedIn } from './js/auth.js';
+    import { openDB, seedDatabase, getUserByEmail, dbAdd } from './js/db.js';
+    import { toast } from './js/notifications.js';
+
+    // Theme check
+    if (localStorage.getItem('ems_theme') === 'dark') {
+      document.body.classList.add('dark-theme');
+    }
+
+    // Check if already logged in
+    if (isLoggedIn()) {
+      window.location.href = 'pages/dashboard.html';
+    }
+
+    // Init DB
+    openDB().then(seedDatabase).then(() => {
+      const loader = document.getElementById('page-loader');
+      const page = document.getElementById('login-page');
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        page.style.opacity = '1';
+      }, 800);
+    }).catch(err => {
+      console.error('DB init error:', err);
+      const loader = document.getElementById('page-loader');
+      const page = document.getElementById('login-page');
+      loader.classList.add('hidden');
+      page.style.opacity = '1';
+    });
+
+    // Mobile logo visibility
+    if (window.innerWidth <= 900) {
+      document.querySelector('.mobile-logo').style.display = 'flex';
+    }
+
+    // ── Tab switcher ──
+    window.switchTab = function (tab) {
+      const isLogin = tab === 'login';
+      document.getElementById('panel-login').style.display = isLogin ? 'block' : 'none';
+      document.getElementById('panel-register').style.display = isLogin ? 'none' : 'block';
+      // Active tab styling
+      const tLogin = document.getElementById('tab-login');
+      const tReg = document.getElementById('tab-register');
+      tLogin.style.background = isLogin ? 'white' : 'transparent';
+      tLogin.style.color = isLogin ? 'var(--primary-800)' : 'var(--text-muted)';
+      tLogin.style.boxShadow = isLogin ? 'var(--shadow-sm)' : 'none';
+      tReg.style.background = isLogin ? 'transparent' : 'white';
+      tReg.style.color = isLogin ? 'var(--text-muted)' : 'var(--color-success)';
+      tReg.style.boxShadow = isLogin ? 'none' : 'var(--shadow-sm)';
+      // Clear alerts
+      document.getElementById('login-error').style.display = 'none';
+      document.getElementById('reg-error').style.display = 'none';
+      document.getElementById('reg-success').style.display = 'none';
+    };
+
+    // Toggle login password
+    document.getElementById('toggle-pw')?.addEventListener('click', () => {
+      const inp = document.getElementById('login-password');
+      const icon = document.getElementById('toggle-pw');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      icon.textContent = inp.type === 'password' ? 'visibility' : 'visibility_off';
+    });
+
+    // Toggle register password
+    document.getElementById('toggle-reg-pw')?.addEventListener('click', () => {
+      const inp = document.getElementById('reg-password');
+      const icon = document.getElementById('toggle-reg-pw');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      icon.textContent = inp.type === 'password' ? 'visibility' : 'visibility_off';
+    });
+
+    // ── Login form ──
+    document.getElementById('login-form')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const remember = document.getElementById('remember-me').checked;
+      const btn = document.getElementById('login-btn');
+      const errEl = document.getElementById('login-error');
+      const errText = document.getElementById('login-error-text');
+
+      if (!email || !password) {
+        errText.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน';
+        errEl.style.display = 'flex';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> กำลังเข้าสู่ระบบ...';
+      errEl.style.display = 'none';
+
+      try {
+        await login(email, password, remember);
+        toast.success('เข้าสู่ระบบสำเร็จ', 'กำลังนำไปยัง Dashboard...');
+        setTimeout(() => { window.location.href = 'pages/dashboard.html'; }, 800);
+      } catch (err) {
+        errText.textContent = err.message;
+        errEl.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded">login</span> เข้าสู่ระบบ';
+        const form = document.getElementById('login-form');
+        form.style.animation = 'none';
+        setTimeout(() => { form.style.animation = 'shake 0.4s ease'; }, 10);
+      }
+    });
+
+    // ── Register form ──
+    document.getElementById('register-form')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const firstname = document.getElementById('reg-firstname').value.trim();
+      const lastname = document.getElementById('reg-lastname').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const password = document.getElementById('reg-password').value;
+      const password2 = document.getElementById('reg-password2').value;
+      const btn = document.getElementById('register-btn');
+      const errEl = document.getElementById('reg-error');
+      const errText = document.getElementById('reg-error-text');
+      const successEl = document.getElementById('reg-success');
+      const successTx = document.getElementById('reg-success-text');
+
+      errEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      // Validate
+      if (!firstname || !lastname) {
+        errText.textContent = 'กรุณากรอกชื่อและนามสกุล';
+        errEl.style.display = 'flex'; return;
+      }
+      if (!email) {
+        errText.textContent = 'กรุณากรอกอีเมล';
+        errEl.style.display = 'flex'; return;
+      }
+      if (password.length < 6) {
+        errText.textContent = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+        errEl.style.display = 'flex'; return;
+      }
+      if (password !== password2) {
+        errText.textContent = 'รหัสผ่านไม่ตรงกัน กรุณากรอกใหม่';
+        errEl.style.display = 'flex'; return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> กำลังสมัครสมาชิก...';
+
+      try {
+        // Check duplicate email
+        const existing = await getUserByEmail(email);
+        if (existing) {
+          errText.textContent = 'อีเมลนี้มีในระบบแล้ว กรุณาใช้อีเมลอื่น';
+          errEl.style.display = 'flex';
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> สมัครสมาชิก';
+          return;
+        }
+
+        await dbAdd('users', {
+          full_name: `${firstname} ${lastname}`,
+          email: email,
+          password: password,
+          role: 'Staff',
+          active: true,
+        });
+
+        // Success
+        document.getElementById('register-form').reset();
+        successTx.textContent = `สมัครสมาชิกสำเร็จ! ยินดีต้อนรับ ${firstname} ${lastname} — กรุณาเข้าสู่ระบบ`;
+        successEl.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> สมัครสมาชิก';
+
+        // Auto switch to login after 2s
+        setTimeout(() => {
+          switchTab('login');
+          document.getElementById('login-email').value = email;
+        }, 2000);
+
+      } catch (err) {
+        errText.textContent = 'เกิดข้อผิดพลาด: ' + err.message;
+        errEl.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> สมัครสมาชิก';
+      }
+    });
+
+    // Shake keyframe
+    const style = document.createElement('style');
+    style.textContent = `
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+`;
+    document.head.appendChild(style);
+  </script>
+
+</body>
+
+</html>
