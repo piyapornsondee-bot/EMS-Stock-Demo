@@ -68,11 +68,9 @@
             </select>
             <select id="filter-location" class="form-control" style="width:auto;min-width:180px;">
               <option value="">ทุกสถานที่</option>
-              <option value="Ambulance 1">🚑 Ambulance 1</option>
-              <option value="Ambulance 2">🚑 Ambulance 2</option>
-              <option value="Ambulance 3">🚑 Ambulance 3</option>
-              <option value="Emergency Room">🏥 Emergency Room</option>
-              <option value="Central Warehouse">🏢 Central Warehouse</option>
+              <option value="ห้องเก็บของ EMS">🏠 ห้องเก็บของ EMS</option>
+              <option value="บ้านเมิร์ส">🏡 บ้านเมิร์ส</option>
+              <option value="อื่นๆ">📍 อื่นๆ</option>
             </select>
             <select id="filter-stock" class="form-control" style="width:auto;min-width:160px;">
               <option value="">ทุกระดับสต๊อก</option>
@@ -161,14 +159,13 @@
         </div>
         <div class="form-group">
           <label class="form-label">สถานที่จัดเก็บ <span class="required">*</span></label>
-          <select id="f-location" class="form-control">
+          <select id="f-location" class="form-control" onchange="toggleCustomLocation(this.value)">
             <option value="">-- เลือกสถานที่ --</option>
-            <option value="Ambulance 1">🚑 Ambulance 1</option>
-            <option value="Ambulance 2">🚑 Ambulance 2</option>
-            <option value="Ambulance 3">🚑 Ambulance 3</option>
-            <option value="Emergency Room">🏥 Emergency Room</option>
-            <option value="Central Warehouse">🏢 Central Warehouse</option>
+            <option value="ห้องเก็บของ EMS">🏠 ห้องเก็บของ EMS</option>
+            <option value="บ้านเมิร์ส">🏡 บ้านเมิร์ส</option>
+            <option value="__other__">📍 อื่นๆ (ระบุเพิ่ม)</option>
           </select>
+          <input type="text" id="f-location-custom" class="form-control" placeholder="ระบุสถานที่..." style="margin-top:8px;display:none;" />
         </div>
         <div class="form-group">
           <label class="form-label">จำนวนสต๊อกเริ่มต้น <span class="required">*</span></label>
@@ -541,6 +538,14 @@ window.selectCategory = function(cat) {
   }
 };
 
+window.toggleCustomLocation = function(val) {
+  const customInput = document.getElementById('f-location-custom');
+  if (customInput) {
+    customInput.style.display = val === '__other__' ? 'block' : 'none';
+    if (val !== '__other__') customInput.value = '';
+  }
+};
+
 window.viewQR = function(itemId) {
   const item = allItems.find(i => i.item_id === itemId);
   if (!item) return;
@@ -582,7 +587,18 @@ function openModal(item) {
   document.getElementById('f-category').value  = item?.category || '';
   document.getElementById('f-subcategory').value= item?.subcategory || '';
   document.getElementById('f-unit').value       = item?.unit || '';
-  document.getElementById('f-location').value  = item?.location || '';
+  document.getElementById('f-location').value  = '';
+  document.getElementById('f-location-custom').style.display = 'none';
+  document.getElementById('f-location-custom').value = '';
+  // Set location, handle custom
+  const knownLocs = ['ห้องเก็บของ EMS', 'บ้านเมิร์ส'];
+  if (item?.location && knownLocs.includes(item.location)) {
+    document.getElementById('f-location').value = item.location;
+  } else if (item?.location) {
+    document.getElementById('f-location').value = '__other__';
+    document.getElementById('f-location-custom').value = item.location;
+    document.getElementById('f-location-custom').style.display = 'block';
+  }
   document.getElementById('f-stock').value      = item?.current_stock ?? '';
   document.getElementById('f-min-stock').value  = item?.minimum_stock ?? '';
   document.getElementById('modal-error').style.display = 'none';
@@ -599,7 +615,10 @@ async function saveItemForm() {
   const barcode  = document.getElementById('f-barcode').value.trim();
   const category = document.getElementById('f-category').value;
   const unit     = document.getElementById('f-unit').value;
-  const location = document.getElementById('f-location').value;
+  const locationSel = document.getElementById('f-location').value;
+  const location = locationSel === '__other__'
+    ? document.getElementById('f-location-custom').value.trim()
+    : locationSel;
   const stock    = parseInt(document.getElementById('f-stock').value);
   const minStock = parseInt(document.getElementById('f-min-stock').value);
 
