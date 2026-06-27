@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
@@ -223,7 +223,7 @@ function renderDailyReport(el) {
         plugins:{ legend:{ position:'top' } },
         scales:{
           x:{ grid:{ display:false }, ticks:{ font:{ family:'Inter', size:10 } } },
-          y:{ beginAtZero:true, ticks:{ font:{ family:'Inter', size:11 } } },
+          y:{ beginAtZero:true, ticks:{ font:{ family:'Inter', size:11 }, stepSize: 1, precision: 0 } },
         },
       },
     });
@@ -274,7 +274,7 @@ function renderMonthlyReport(el) {
           { label:'จ่ายออก', data:sorted.map(([,d])=>d.issue), borderColor:'#C62828', backgroundColor:'rgba(198,40,40,.1)', fill:true, tension:0.4, pointRadius:5 },
         ],
       },
-      options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true } } },
+      options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize: 1, precision: 0 } } } },
     });
   }, 100);
 }

@@ -16,7 +16,7 @@ export const ROLES = {
 
 export const PERMISSIONS = {
   Administrator: ['add_item','edit_item','delete_item','manage_users','view_reports','export_data','receive_stock','issue_stock','view_inventory','adjust_stock'],
-  Staff:         ['receive_stock','issue_stock','view_inventory'],
+  Staff:         ['receive_stock','issue_stock','view_inventory','view_reports'],
   Viewer:        ['view_inventory'],
 };
 
