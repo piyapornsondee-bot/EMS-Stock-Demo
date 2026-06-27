@@ -161,7 +161,7 @@
 <div id="toast-container"></div>
 
 <script type="module">
-import { initApp, getCurrentLocation } from '../js/app.js';
+import { initApp, getCurrentLocation, getLocationBadge } from '../js/app.js';
 import { getAllItems, getItemByBarcode, getAllTransactions, addTransaction } from '../js/db.js';
 import { openScanner, closeScanner } from '../js/scanner.js';
 import { generateQR } from '../js/qrgen.js';
@@ -267,7 +267,7 @@ function selectItem(item) {
           <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">${item.item_name}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <span class="badge badge-primary">${item.category}</span>
-            <span class="badge badge-neutral">${item.location}</span>
+            ${getLocationBadge(item.location)}
           </div>
         </div>
         <div style="text-align:right;">

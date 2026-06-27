@@ -164,7 +164,7 @@
 <div id="toast-container"></div>
 
 <script type="module">
-import { initApp, formatNumber } from '../js/app.js';
+import { initApp, formatNumber, getLocationBadge } from '../js/app.js';
 import { getAllItems, getAllTransactions, getLowStockItems } from '../js/db.js';
 import { formatDateTime, timeAgo } from '../js/notifications.js';
 
@@ -340,7 +340,7 @@ function renderLowStockList(low) {
         </div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.item_name}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">${item.location}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;display:flex;align-items:center;">${getLocationBadge(item.location)}</div>
           <div class="stock-bar">
             <div class="stock-bar-fill ${lvl}" style="width:${Math.min(pct,100)}%;"></div>
           </div>

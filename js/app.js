@@ -367,3 +367,32 @@ export function exportToExcel(data, filename, sheetName = 'Sheet1') {
   XLSX.writeFile(wb, filename);
   toast.success('ส่งออกสำเร็จ', `บันทึกไฟล์ ${filename}`);
 }
+
+/* ── Render styled location badge with modern graphics icon ── */
+export function getLocationBadge(location) {
+  if (!location) return '';
+  let icon = 'location_on';
+  let color = 'var(--text-secondary)';
+  let bg = 'var(--neutral-100)';
+  
+  if (location === 'ห้องเก็บของ EMS') {
+    icon = 'warehouse';
+    color = '#0066cc';
+    bg = 'rgba(0, 102, 204, 0.08)';
+  } else if (location === 'บ้านเมิร์ส') {
+    icon = 'home_pin';
+    color = '#1b5e20';
+    bg = 'rgba(27, 94, 32, 0.08)';
+  } else {
+    icon = 'location_on';
+    color = '#b71c1c';
+    bg = 'rgba(183, 28, 28, 0.08)';
+  }
+  
+  return `
+    <span style="display:inline-flex;align-items:center;gap:5px;background-color:${bg};color:${color};padding:4px 8px;font-size:11px;font-weight:600;border-radius:6px;border:1px solid rgba(0,0,0,0.02);vertical-align:middle;white-space:nowrap;">
+      <span class="material-symbols-rounded" style="font-size:14px;display:block;">${icon}</span>
+      ${location}
+    </span>
+  `;
+}

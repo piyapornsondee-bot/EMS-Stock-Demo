@@ -221,7 +221,7 @@
 <div id="toast-container"></div>
 
 <script type="module">
-import { initApp, confirmDialog, exportToExcel } from '../js/app.js';
+import { initApp, confirmDialog, exportToExcel, getLocationBadge } from '../js/app.js';
 import { getAllItems, saveItem, deleteItem, getLowStockItems } from '../js/db.js';
 import { generateQR, downloadQR, printQRLabel } from '../js/qrgen.js';
 import { openScanner, closeScanner } from '../js/scanner.js';
@@ -448,7 +448,7 @@ function render() {
                     <div style="font-size:11px;color:var(--text-muted);">${item.unit}</div>
                   </td>
                   <td><span class="badge badge-primary">${item.category}</span></td>
-                  <td style="font-size:12px;">${item.location}</td>
+                  <td style="font-size:12px;">${getLocationBadge(item.location)}</td>
                   <td style="font-weight:700;font-size:15px;color:${level === 'empty' ? 'var(--color-danger)' : level === 'low' ? 'var(--color-warning)' : 'var(--text-primary)'};">${item.current_stock}</td>
                   <td style="font-size:12px;color:var(--text-muted);">${item.minimum_stock}</td>
                   <td><span class="badge ${badge}">${labelTh}</span></td>
@@ -496,7 +496,7 @@ function renderItemCard(item) {
         <div class="item-card-name">${item.item_name}</div>
         <div class="item-card-meta">
           <span class="badge badge-primary" style="font-size:10px;">${item.category}</span>
-          <span class="badge badge-neutral" style="font-size:10px;">${item.location}</span>
+          ${getLocationBadge(item.location)}
         </div>
         <div class="item-card-stock">
           <div class="item-card-stock-row">
