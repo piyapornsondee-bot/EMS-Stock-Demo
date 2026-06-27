@@ -244,6 +244,9 @@ export async function addTransaction(txObj) {
       item.current_stock += Number(txObj.quantity);
       if (item.current_stock < 0) item.current_stock = 0;
     }
+    if (txObj.location) {
+      item.location = txObj.location;
+    }
     txObj.balance_after_transaction = item.current_stock;
     item.updated_date = txObj.datetime;
     

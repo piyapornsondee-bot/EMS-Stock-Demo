@@ -103,10 +103,14 @@
               <div class="card-body">
                 <div style="display:flex;flex-direction:column;gap:16px;">
                    <div class="form-group">
-                     <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                       <span>จ่ายออกจากสถานที่จัดเก็บ:</span>
-                       <span id="issue-location-display"></span>
-                     </label>
+                     <label class="form-label">สถานที่จัดเก็บต้นทาง <span class="required">*</span></label>
+                     <select id="issue-location" class="form-control" onchange="toggleCustomLocation(this.value)">
+                       <option value="">-- เลือกสถานที่ --</option>
+                       <option value="ห้องเก็บของ EMS">🏠 ห้องเก็บของ EMS</option>
+                       <option value="บ้านเมิร์ส">🏡 บ้านเมิร์ส</option>
+                       <option value="__other__">📍 อื่นๆ (ระบุเพิ่ม)</option>
+                     </select>
+                     <input type="text" id="issue-location-custom" class="form-control" placeholder="ระบุสถานที่..." style="margin-top:8px;display:none;" />
                    </div>
                    <div class="form-group">
                      <label class="form-label">จำนวนที่จ่ายออก <span class="required">*</span></label>
@@ -173,6 +177,14 @@ let selectedItem = null;
 async function init() {
   await initApp('จ่ายพัสดุออก', 'Issue Stock');
   renderRecentIssues();
+
+  window.toggleCustomLocation = function(val) {
+    const customInput = document.getElementById('issue-location-custom');
+    if (customInput) {
+      customInput.style.display = val === '__other__' ? 'block' : 'none';
+      if (val !== '__other__') customInput.value = '';
+    }
+  };
 
   document.getElementById('scan-btn')?.addEventListener('click', () => {
     openScanner(async code => { await selectByBarcode(code); }, null);
@@ -253,7 +265,32 @@ function selectItem(item) {
   document.getElementById('issue-form-wrap').style.display   = 'flex';
   document.getElementById('issue-unit').textContent          = item.unit;
   document.getElementById('current-stock-display').textContent = item.current_stock;
-  document.getElementById('issue-location-display').innerHTML = getLocationBadge(item.location);
+  
+  // Set location select values
+  const knownLocs = ['ห้องเก็บของ EMS', 'บ้านเมิร์ส'];
+  const locSelect = document.getElementById('issue-location');
+  const locCustom = document.getElementById('issue-location-custom');
+  if (locSelect) {
+    if (item.location && knownLocs.includes(item.location)) {
+      locSelect.value = item.location;
+      if (locCustom) {
+        locCustom.value = '';
+        locCustom.style.display = 'none';
+      }
+    } else if (item.location) {
+      locSelect.value = '__other__';
+      if (locCustom) {
+        locCustom.value = item.location;
+        locCustom.style.display = 'block';
+      }
+    } else {
+      locSelect.value = '';
+      if (locCustom) {
+        locCustom.value = '';
+        locCustom.style.display = 'none';
+      }
+    }
+  }
   document.getElementById('stock-warning').style.display    = 'none';
   document.getElementById('issue-qty').focus();
 
@@ -307,8 +344,18 @@ async function confirmIssue() {
     errEl.style.display = 'flex';
     return;
   }
+  const locationSel = document.getElementById('issue-location').value;
+  const location = locationSel === '__other__'
+    ? document.getElementById('issue-location-custom').value.trim()
+    : locationSel;
+
   if (qty > selectedItem.current_stock) {
     errTx.textContent = `จำนวนจ่ายออก (${qty}) มากกว่าสต๊อกคงเหลือ (${selectedItem.current_stock} ${selectedItem.unit}) ไม่สามารถดำเนินการได้`;
+    errEl.style.display = 'flex';
+    return;
+  }
+  if (!location) {
+    errTx.textContent = 'กรุณาระบุสถานที่จัดเก็บต้นทาง';
     errEl.style.display = 'flex';
     return;
   }
@@ -327,7 +374,7 @@ async function confirmIssue() {
       balance_after_transaction: selectedItem.current_stock - qty,
       remarks,
       user_name: user.full_name,
-      location: selectedItem.location,
+      location: location,
     });
 
     document.getElementById('success-msg').textContent = `จ่าย "${selectedItem.item_name}" ออกจากคลังสำเร็จ`;

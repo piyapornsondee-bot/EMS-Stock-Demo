@@ -107,10 +107,14 @@
               <div class="card-body">
                 <div style="display:flex;flex-direction:column;gap:16px;">
                    <div class="form-group">
-                     <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                       <span>รับเข้าที่สถานที่จัดเก็บ:</span>
-                       <span id="recv-location-display"></span>
-                     </label>
+                     <label class="form-label">สถานที่จัดเก็บปลายทาง <span class="required">*</span></label>
+                     <select id="recv-location" class="form-control" onchange="toggleCustomLocation(this.value)">
+                       <option value="">-- เลือกสถานที่ --</option>
+                       <option value="ห้องเก็บของ EMS">🏠 ห้องเก็บของ EMS</option>
+                       <option value="บ้านเมิร์ส">🏡 บ้านเมิร์ส</option>
+                       <option value="__other__">📍 อื่นๆ (ระบุเพิ่ม)</option>
+                     </select>
+                     <input type="text" id="recv-location-custom" class="form-control" placeholder="ระบุสถานที่..." style="margin-top:8px;display:none;" />
                    </div>
                    <div class="form-group">
                      <label class="form-label">จำนวนที่รับเข้า <span class="required">*</span></label>
@@ -179,6 +183,14 @@ let selectedItem = null;
 async function init() {
   await initApp('รับพัสดุเข้า', 'Receive Stock');
   renderRecentReceives();
+
+  window.toggleCustomLocation = function(val) {
+    const customInput = document.getElementById('recv-location-custom');
+    if (customInput) {
+      customInput.style.display = val === '__other__' ? 'block' : 'none';
+      if (val !== '__other__') customInput.value = '';
+    }
+  };
 
   // Scan
   document.getElementById('scan-btn')?.addEventListener('click', () => {
@@ -258,7 +270,33 @@ function selectItem(item) {
   document.getElementById('form-placeholder').style.display   = 'none';
   document.getElementById('receive-form-wrap').style.display  = 'flex';
   document.getElementById('recv-unit').textContent = item.unit;
-  document.getElementById('recv-location-display').innerHTML = getLocationBadge(item.location);
+  
+  // Set location select values
+  const knownLocs = ['ห้องเก็บของ EMS', 'บ้านเมิร์ส'];
+  const locSelect = document.getElementById('recv-location');
+  const locCustom = document.getElementById('recv-location-custom');
+  if (locSelect) {
+    if (item.location && knownLocs.includes(item.location)) {
+      locSelect.value = item.location;
+      if (locCustom) {
+        locCustom.value = '';
+        locCustom.style.display = 'none';
+      }
+    } else if (item.location) {
+      locSelect.value = '__other__';
+      if (locCustom) {
+        locCustom.value = item.location;
+        locCustom.style.display = 'block';
+      }
+    } else {
+      locSelect.value = '';
+      if (locCustom) {
+        locCustom.value = '';
+        locCustom.style.display = 'none';
+      }
+    }
+  }
+  
   document.getElementById('recv-qty').focus();
 
   // Selected item info card
@@ -299,8 +337,18 @@ async function confirmReceive() {
   const errTx   = document.getElementById('recv-error-text');
   const user    = getCurrentUser();
 
+  const locationSel = document.getElementById('recv-location').value;
+  const location = locationSel === '__other__'
+    ? document.getElementById('recv-location-custom').value.trim()
+    : locationSel;
+
   if (!qty || qty <= 0) {
     errTx.textContent = 'กรุณาระบุจำนวนที่รับเข้า (ต้องมากกว่า 0)';
+    errEl.style.display = 'flex';
+    return;
+  }
+  if (!location) {
+    errTx.textContent = 'กรุณาระบุสถานที่จัดเก็บปลายทาง';
     errEl.style.display = 'flex';
     return;
   }
@@ -319,7 +367,7 @@ async function confirmReceive() {
       balance_after_transaction: selectedItem.current_stock + qty,
       remarks,
       user_name:        user.full_name,
-      location:         selectedItem.location,
+      location:         location,
     });
 
     // Show success
