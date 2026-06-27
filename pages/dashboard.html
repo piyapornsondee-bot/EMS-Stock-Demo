@@ -51,7 +51,7 @@
 
       <!-- KPI Cards -->
       <div class="grid-4 stagger-children" id="kpi-grid" style="margin-bottom:24px;">
-        <div class="stat-card skeleton-card" style="cursor:pointer;" onclick="location.href='inventory.html'">
+        <div class="stat-card skeleton-card" style="cursor:pointer;" onclick="location.href='inventory.html?view=all'">
           <div class="stat-icon blue"><span class="material-symbols-rounded">inventory_2</span></div>
           <div class="stat-info">
             <div class="stat-value" id="kpi-total-items">—</div>
@@ -59,7 +59,7 @@
             <div class="stat-trend up" id="kpi-items-trend"><span class="material-symbols-rounded" style="font-size:11px;">trending_up</span> อัปเดตล่าสุด</div>
           </div>
         </div>
-        <div class="stat-card" style="cursor:pointer;" onclick="location.href='inventory.html'">
+        <div class="stat-card" style="cursor:pointer;" onclick="location.href='inventory.html?stock=normal&view=all'">
           <div class="stat-icon green"><span class="material-symbols-rounded">stacked_bar_chart</span></div>
           <div class="stat-info">
             <div class="stat-value" id="kpi-total-stock">—</div>
@@ -67,7 +67,7 @@
             <div class="stat-trend up"><span class="material-symbols-rounded" style="font-size:11px;">trending_up</span> ทุกสถานที่</div>
           </div>
         </div>
-        <div class="stat-card low-stock-pulse" id="low-stock-card" style="cursor:pointer;" onclick="location.href='inventory.html'">
+        <div class="stat-card low-stock-pulse" id="low-stock-card" style="cursor:pointer;" onclick="location.href='inventory.html?stock=low&view=all'">
           <div class="stat-icon red"><span class="material-symbols-rounded">warning</span></div>
           <div class="stat-info">
             <div class="stat-value" id="kpi-low-stock">—</div>

@@ -235,6 +235,7 @@ let allItems    = [];
 let filteredItems = [];
 let currentView = 'grid';
 let editingItem = null;
+let forceListView = false;
 
 async function init() {
   await initApp('คลังพัสดุ', 'Medical Inventory');
@@ -248,6 +249,18 @@ async function init() {
   // Restore location filter from session
   const savedLoc = sessionStorage.getItem('ems_location') || '';
   if (savedLoc) document.getElementById('filter-location').value = savedLoc;
+
+  // Handle URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('stock')) {
+    document.getElementById('filter-stock').value = urlParams.get('stock');
+  }
+  if (urlParams.get('view') === 'all') {
+    forceListView = true;
+    currentView = 'list';
+    document.getElementById('view-grid').className = 'btn btn-icon btn-ghost';
+    document.getElementById('view-list').className = 'btn btn-icon btn-secondary';
+  }
 
   // Event listeners
   document.getElementById('search-input')?.addEventListener('input', applyFilters);
@@ -358,7 +371,7 @@ function render() {
   const catFilter  = document.getElementById('filter-category')?.value || '';
 
   // Show category cards if no specific category or search is active
-  if (!catFilter && !search) {
+  if (!catFilter && !search && !forceListView) {
     const cats = {};
     for (const item of filteredItems) {
       const c = item.category || 'อื่นๆ';
