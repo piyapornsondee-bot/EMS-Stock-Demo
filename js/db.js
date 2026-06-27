@@ -166,7 +166,12 @@ export async function seedDatabase() {
 /* ── Item Helpers ── */
 export async function getAllItems() {
   const snapshot = await getDocs(collection(db, 'items'));
-  return snapshotToArray(snapshot, 'item_id');
+  const items = snapshotToArray(snapshot, 'item_id');
+  return items.sort((a, b) => {
+    const codeA = a.barcode || '';
+    const codeB = b.barcode || '';
+    return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+  });
 }
 
 export async function getItemById(id) {
