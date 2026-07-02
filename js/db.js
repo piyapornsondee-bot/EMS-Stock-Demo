@@ -31,56 +31,56 @@ export async function setSetting(key, value) {
 
 /* ── Seed Data ── */
 const OFFICE_SEED_ITEMS = [
-  { barcode: 'EMS142', qr_code: 'EMS142', item_name: 'กรรไกรตัดกระดาษความยาว 8.5 นิ้ว', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS143', qr_code: 'EMS143', item_name: 'กระดาษก๊อปปี้ สีน้ำเงิน สำหรับเขียน', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS144', qr_code: 'EMS144', item_name: 'กระดาษถ่ายเอกสาร 80 แกรม ขนาดเอฟ14', category: 'Office', subcategory: 'Office Supplies', unit: 'รีม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS145', qr_code: 'EMS145', item_name: 'กระดาษถ่ายเอกสาร 80 แกรม ขนาดเอ4', category: 'Office', subcategory: 'Office Supplies', unit: 'รีม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS146', qr_code: 'EMS146', item_name: 'กาวหลอดชนิดหมุน 22 กรัม', category: 'Office', subcategory: 'Office Supplies', unit: 'หลอด', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS147', qr_code: 'EMS147', item_name: 'ซองจดหมายตราคณะฯ 4.25"x9.25" สีขาว', category: 'Office', subcategory: 'Office Supplies', unit: 'ซอง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS148', qr_code: 'EMS148', item_name: 'ซองสีน้ำตาล 8*10', category: 'Office', subcategory: 'Office Supplies', unit: 'ซอง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS149', qr_code: 'EMS149', item_name: 'ซองตราครุฑ สีน้ำตาล 10"x14"', category: 'Office', subcategory: 'Office Supplies', unit: 'ซอง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS150', qr_code: 'EMS150', item_name: 'ดินสอดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'แท่ง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS151', qr_code: 'EMS151', item_name: 'ที่ถอนลวดเย็บกระดาษชนิดแซะ', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS152', qr_code: 'EMS152', item_name: 'น้ำยาลบคำผิดชนิดแท่ง ขนาด 7 ml.', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS153', qr_code: 'EMS153', item_name: 'ปากกาเคมี ชนิด 2 หัว สีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS154', qr_code: 'EMS154', item_name: 'ปากกาเคมี ชนิด 2 หัว สีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS155', qr_code: 'EMS155', item_name: 'ปากกาเคมี 2 หัวสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS156', qr_code: 'EMS156', item_name: 'ปากกาเคมีแท่งเล็กเส้นเล็กสีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS157', qr_code: 'EMS157', item_name: 'ปากกาเคมีแท่งเล็กเส้นเล็กสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS158', qr_code: 'EMS158', item_name: 'ปากกาเคมีแท่งเล็กเส้นเล็กสีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS159', qr_code: 'EMS159', item_name: 'เครื่องเย็บกระดาษขนาดกลาง No.M8-1M', category: 'Office', subcategory: 'Office Supplies', unit: 'เครื่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS160', qr_code: 'EMS160', item_name: 'ลวดเย็บกระดาษ ขนาด M8-1M (1000 ตัว/กล่อง)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS161', qr_code: 'EMS161', item_name: 'ลวดเสียบกระดาษสามเหลี่ยม (50 ตัว/กล่อง)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS162', qr_code: 'EMS162', item_name: 'สมุดปกอ่อนทำด้วยกระดาษอย่างดี ไม่น้อยกว่า 30 แผ่น', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS163', qr_code: 'EMS163', item_name: 'สมุดปกแข็งสีน้ำเงิน 4/80 แผ่น ขนาด265x385 มม. 60แกรม ไม่น้อยกว่า 150 หน้า', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS164', qr_code: 'EMS164', item_name: 'สมุดปกแข็งมุมมัน 4/100 แผ่น ขนาด 250x370 มม. 80 แกรม ไม่น้อยกว่า 200 หน้า', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS165', qr_code: 'EMS165', item_name: 'สมุดปกแข็งสีน้ำเงิน2/80 แผ่น ขนาด19x31 ซม. 60แกรม ไม่น้อยกว่า 150 หน้า', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS166', qr_code: 'EMS166', item_name: 'หมึกเติมแท่นประทับตรา สีน้ำเงิน28ซีซี', category: 'Office', subcategory: 'Office Supplies', unit: 'ขวด', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS167', qr_code: 'EMS167', item_name: 'หมึกเติมแท่นประทับตรา สีแดง 28 ซีซี', category: 'Office', subcategory: 'Office Supplies', unit: 'ขวด', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS168', qr_code: 'EMS168', item_name: 'เครื่องเหลาดินสอ ชนิดใช้มือหมุน', category: 'Office', subcategory: 'Office Supplies', unit: 'เครื่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS169', qr_code: 'EMS169', item_name: 'เชือกผูกของ ขาว-แดง ความยาวไม่น้อยกว่า 200 เมตร', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS170', qr_code: 'EMS170', item_name: 'เทปโฟม 2 หน้า 24 mm.x5 m. ชนิดหนา.', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS171', qr_code: 'EMS171', item_name: 'เหล็กหนีบหูเป็นโลหะ ขนาด 3/4 นิ้ว.#112(จิ๋ว)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS172', qr_code: 'EMS172', item_name: 'เหล็กหนีบหูเป็นโลหะ สีดำ ขนาด 1 1/4 นิ้ว #110(เล็ก)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS173', qr_code: 'EMS173', item_name: 'เหล็กหนีบหูเป็นโลหะ สีดำ ขนาด 1 5/8 นิ้ว .#109(กลาง)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS174', qr_code: 'EMS174', item_name: 'เหล็กหนีบหูเป็นโลหะ สีดำ ขนาด 2 นิ้ว .#108(ใหญ่)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS175', qr_code: 'EMS175', item_name: 'แถบกาวย่น 1" ความยาวไม่น้อยกว่า 25 หลา', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS176', qr_code: 'EMS176', item_name: 'แถบกาวย่น 2" ความยาวไม่น้อยกว่า 25 หลา', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS177', qr_code: 'EMS177', item_name: 'แถบกาวใส 1"x 72 หลา', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS178', qr_code: 'EMS178', item_name: 'แท่นประทับตรา เบอร์2 สีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS179', qr_code: 'EMS179', item_name: 'แท่นประทับตรา เบอร์ 2 สีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS180', qr_code: 'EMS180', item_name: 'แฟ้มห่วงสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS181', qr_code: 'EMS181', item_name: 'แฟ้มสปริงหนีบสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS182', qr_code: 'EMS182', item_name: 'ปากกาไวท์บอร์ด สีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS183', qr_code: 'EMS183', item_name: 'ปากกาเคมีใช้เขียนกระดานขาวสีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS184', qr_code: 'EMS184', item_name: 'ปากกาเคมีใช้เขียนกระดานขาวสีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS185', qr_code: 'EMS185', item_name: 'แท่นสำหรับใส่แถบกาวใส', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS186', qr_code: 'EMS186', item_name: 'ยางลบดินสอ', category: 'Office', subcategory: 'Office Supplies', unit: 'ก้อน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS187', qr_code: 'EMS187', item_name: 'ไม้บรรทัดพลาสติก 12 นิ้ว', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS188', qr_code: 'EMS188', item_name: 'ไม้บรรทัดพลาสติก 18 นิ้ว', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS189', qr_code: 'EMS189', item_name: 'Ribbon RB-WAX Size 75 m.m x 74 m.', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS190', qr_code: 'EMS190', item_name: 'สติ๊กเกอร์บาร์โค้ต 5.5x3 ซม. (1 ม้วน/2,000 ดวง)', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' },
-  { barcode: 'EMS191', qr_code: 'EMS191', item_name: 'ที่เจาะกระดาษ 2 รู ขนาดเล็ก', category: 'Office', subcategory: 'Office Supplies', unit: 'เครื่อง', current_stock: 0, minimum_stock: 2, location: 'EMS', item_image: '' }
+  { barcode: 'EMS142', qr_code: 'EMS142', item_name: 'กรรไกรตัดกระดาษความยาว 8.5 นิ้ว', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS143', qr_code: 'EMS143', item_name: 'กระดาษก๊อปปี้ สีน้ำเงิน สำหรับเขียน', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS144', qr_code: 'EMS144', item_name: 'กระดาษถ่ายเอกสาร 80 แกรม ขนาดเอฟ14', category: 'Office', subcategory: 'Office Supplies', unit: 'รีม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS145', qr_code: 'EMS145', item_name: 'กระดาษถ่ายเอกสาร 80 แกรม ขนาดเอ4', category: 'Office', subcategory: 'Office Supplies', unit: 'รีม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS146', qr_code: 'EMS146', item_name: 'กาวหลอดชนิดหมุน 22 กรัม', category: 'Office', subcategory: 'Office Supplies', unit: 'หลอด', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS147', qr_code: 'EMS147', item_name: 'ซองจดหมายตราคณะฯ 4.25"x9.25" สีขาว', category: 'Office', subcategory: 'Office Supplies', unit: 'ซอง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS148', qr_code: 'EMS148', item_name: 'ซองสีน้ำตาล 8*10', category: 'Office', subcategory: 'Office Supplies', unit: 'ซอง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS149', qr_code: 'EMS149', item_name: 'ซองตราครุฑ สีน้ำตาล 10"x14"', category: 'Office', subcategory: 'Office Supplies', unit: 'ซอง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS150', qr_code: 'EMS150', item_name: 'ดินสอดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'แท่ง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS151', qr_code: 'EMS151', item_name: 'ที่ถอนลวดเย็บกระดาษชนิดแซะ', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS152', qr_code: 'EMS152', item_name: 'น้ำยาลบคำผิดชนิดแท่ง ขนาด 7 ml.', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS153', qr_code: 'EMS153', item_name: 'ปากกาเคมี ชนิด 2 หัว สีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS154', qr_code: 'EMS154', item_name: 'ปากกาเคมี ชนิด 2 หัว สีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS155', qr_code: 'EMS155', item_name: 'ปากกาเคมี 2 หัวสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS156', qr_code: 'EMS156', item_name: 'ปากกาเคมีแท่งเล็กเส้นเล็กสีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS157', qr_code: 'EMS157', item_name: 'ปากกาเคมีแท่งเล็กเส้นเล็กสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS158', qr_code: 'EMS158', item_name: 'ปากกาเคมีแท่งเล็กเส้นเล็กสีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS159', qr_code: 'EMS159', item_name: 'เครื่องเย็บกระดาษขนาดกลาง No.M8-1M', category: 'Office', subcategory: 'Office Supplies', unit: 'เครื่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS160', qr_code: 'EMS160', item_name: 'ลวดเย็บกระดาษ ขนาด M8-1M (1000 ตัว/กล่อง)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS161', qr_code: 'EMS161', item_name: 'ลวดเสียบกระดาษสามเหลี่ยม (50 ตัว/กล่อง)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS162', qr_code: 'EMS162', item_name: 'สมุดปกอ่อนทำด้วยกระดาษอย่างดี ไม่น้อยกว่า 30 แผ่น', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS163', qr_code: 'EMS163', item_name: 'สมุดปกแข็งสีน้ำเงิน 4/80 แผ่น ขนาด265x385 มม. 60แกรม ไม่น้อยกว่า 150 หน้า', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS164', qr_code: 'EMS164', item_name: 'สมุดปกแข็งมุมมัน 4/100 แผ่น ขนาด 250x370 มม. 80 แกรม ไม่น้อยกว่า 200 หน้า', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS165', qr_code: 'EMS165', item_name: 'สมุดปกแข็งสีน้ำเงิน2/80 แผ่น ขนาด19x31 ซม. 60แกรม ไม่น้อยกว่า 150 หน้า', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS166', qr_code: 'EMS166', item_name: 'หมึกเติมแท่นประทับตรา สีน้ำเงิน28ซีซี', category: 'Office', subcategory: 'Office Supplies', unit: 'ขวด', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS167', qr_code: 'EMS167', item_name: 'หมึกเติมแท่นประทับตรา สีแดง 28 ซีซี', category: 'Office', subcategory: 'Office Supplies', unit: 'ขวด', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS168', qr_code: 'EMS168', item_name: 'เครื่องเหลาดินสอ ชนิดใช้มือหมุน', category: 'Office', subcategory: 'Office Supplies', unit: 'เครื่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS169', qr_code: 'EMS169', item_name: 'เชือกผูกของ ขาว-แดง ความยาวไม่น้อยกว่า 200 เมตร', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS170', qr_code: 'EMS170', item_name: 'เทปโฟม 2 หน้า 24 mm.x5 m. ชนิดหนา.', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS171', qr_code: 'EMS171', item_name: 'เหล็กหนีบหูเป็นโลหะ ขนาด 3/4 นิ้ว.#112(จิ๋ว)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS172', qr_code: 'EMS172', item_name: 'เหล็กหนีบหูเป็นโลหะ สีดำ ขนาด 1 1/4 นิ้ว #110(เล็ก)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS173', qr_code: 'EMS173', item_name: 'เหล็กหนีบหูเป็นโลหะ สีดำ ขนาด 1 5/8 นิ้ว .#109(กลาง)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS174', qr_code: 'EMS174', item_name: 'เหล็กหนีบหูเป็นโลหะ สีดำ ขนาด 2 นิ้ว .#108(ใหญ่)', category: 'Office', subcategory: 'Office Supplies', unit: 'กล่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS175', qr_code: 'EMS175', item_name: 'แถบกาวย่น 1" ความยาวไม่น้อยกว่า 25 หลา', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS176', qr_code: 'EMS176', item_name: 'แถบกาวย่น 2" ความยาวไม่น้อยกว่า 25 หลา', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS177', qr_code: 'EMS177', item_name: 'แถบกาวใส 1"x 72 หลา', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS178', qr_code: 'EMS178', item_name: 'แท่นประทับตรา เบอร์2 สีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS179', qr_code: 'EMS179', item_name: 'แท่นประทับตรา เบอร์ 2 สีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS180', qr_code: 'EMS180', item_name: 'แฟ้มห่วงสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS181', qr_code: 'EMS181', item_name: 'แฟ้มสปริงหนีบสีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'เล่ม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS182', qr_code: 'EMS182', item_name: 'ปากกาไวท์บอร์ด สีดำ', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS183', qr_code: 'EMS183', item_name: 'ปากกาเคมีใช้เขียนกระดานขาวสีน้ำเงิน', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS184', qr_code: 'EMS184', item_name: 'ปากกาเคมีใช้เขียนกระดานขาวสีแดง', category: 'Office', subcategory: 'Office Supplies', unit: 'ด้าม', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS185', qr_code: 'EMS185', item_name: 'แท่นสำหรับใส่แถบกาวใส', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS186', qr_code: 'EMS186', item_name: 'ยางลบดินสอ', category: 'Office', subcategory: 'Office Supplies', unit: 'ก้อน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS187', qr_code: 'EMS187', item_name: 'ไม้บรรทัดพลาสติก 12 นิ้ว', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS188', qr_code: 'EMS188', item_name: 'ไม้บรรทัดพลาสติก 18 นิ้ว', category: 'Office', subcategory: 'Office Supplies', unit: 'อัน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS189', qr_code: 'EMS189', item_name: 'Ribbon RB-WAX Size 75 m.m x 74 m.', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS190', qr_code: 'EMS190', item_name: 'สติ๊กเกอร์บาร์โค้ต 5.5x3 ซม. (1 ม้วน/2,000 ดวง)', category: 'Office', subcategory: 'Office Supplies', unit: 'ม้วน', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' },
+  { barcode: 'EMS191', qr_code: 'EMS191', item_name: 'ที่เจาะกระดาษ 2 รู ขนาดเล็ก', category: 'Office', subcategory: 'Office Supplies', unit: 'เครื่อง', current_stock: 0, minimum_stock: 2, location: 'ห้องเก็บของ EMS', item_image: '' }
 ];
 
 /* ── Seed Data ── */
@@ -100,23 +100,37 @@ export async function seedDatabase() {
   }
 
   const officeFlag = await getSetting('seeded_office_items_v1');
+  const officeFlagV2 = await getSetting('seeded_office_items_v2');
   const v3Flag = await getSetting('seeded_v3_firebase');
 
-  if (!officeFlag && v3Flag) {
-    const now = new Date().toISOString();
-    const officeItems = OFFICE_SEED_ITEMS.map(i => ({
-      ...i,
-      created_date: now,
-      updated_date: now
-    }));
+  if (!officeFlagV2 && v3Flag) {
     const batch = writeBatch(db);
-    for (const item of officeItems) {
-      const docRef = doc(collection(db, 'items'));
-      batch.set(docRef, item);
+    const now = new Date().toISOString();
+    
+    // 1. If v1 was seeded (location 'EMS'), update their location to 'ห้องเก็บของ EMS'
+    if (officeFlag) {
+      const q = query(collection(db, 'items'), where('category', '==', 'Office'), where('location', '==', 'EMS'));
+      const snap = await getDocs(q);
+      snap.forEach(docSnap => {
+        batch.update(docSnap.ref, { location: 'ห้องเก็บของ EMS' });
+      });
+    } else {
+      // 2. If v1 was never seeded, seed them now with location 'ห้องเก็บของ EMS'
+      const officeItems = OFFICE_SEED_ITEMS.map(i => ({
+        ...i,
+        created_date: now,
+        updated_date: now
+      }));
+      for (const item of officeItems) {
+        const docRef = doc(collection(db, 'items'));
+        batch.set(docRef, item);
+      }
+      await setSetting('seeded_office_items_v1', true);
     }
+    
     await batch.commit();
-    await setSetting('seeded_office_items_v1', true);
-    console.log('✅ Database seeded with EMS Office items (Migration)');
+    await setSetting('seeded_office_items_v2', true);
+    console.log('✅ Database migrated: Office items location updated to "ห้องเก็บของ EMS"');
   }
 
   if (v3Flag) return;
@@ -235,6 +249,7 @@ export async function seedDatabase() {
 
   await setSetting('seeded_v3_firebase', true);
   await setSetting('seeded_office_items_v1', true);
+  await setSetting('seeded_office_items_v2', true);
   console.log('✅ Database seeded with EMS inventory data (Firebase)');
 }
 
