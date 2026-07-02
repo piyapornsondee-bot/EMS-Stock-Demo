@@ -321,7 +321,10 @@ function applyFilters() {
       item.qr_code?.toLowerCase().includes(search) ||
       item.category?.toLowerCase().includes(search);
     const matchCat  = !catFilter  || item.category === catFilter;
-    const matchLoc  = !locFilter  || item.location === locFilter;
+    const matchLoc  = !locFilter  || 
+      (locFilter === 'อื่นๆ' 
+        ? (item.location !== 'ห้องเก็บของ EMS' && item.location !== 'บ้านเมิร์ส') 
+        : item.location === locFilter);
     let matchStock = true;
     if (stockFilter === 'low')    matchStock = item.current_stock <= item.minimum_stock;
     if (stockFilter === 'empty')  matchStock = item.current_stock === 0;
