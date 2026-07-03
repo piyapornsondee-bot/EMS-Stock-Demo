@@ -27,7 +27,10 @@
           <div class="page-header-subtitle">วิเคราะห์ข้อมูลสต๊อก การรับ-จ่าย และสรุปผล</div>
         </div>
         <div class="page-header-actions">
-          <button class="btn btn-success" id="btn-export">
+          <button class="btn btn-success" id="btn-export-movement">
+            <span class="material-symbols-rounded">table_chart</span> Export รายการเคลื่อนไหว
+          </button>
+          <button class="btn btn-secondary" id="btn-export">
             <span class="material-symbols-rounded">download</span> Export รายงาน
           </button>
           <button class="btn btn-secondary" id="btn-print">
@@ -61,6 +64,79 @@
     </main>
   </div>
 </div>
+
+<!-- ─── Export Movement Modal ─── -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header" style="background:linear-gradient(135deg,#1a73e8,#0d47a1);border-radius:16px 16px 0 0;padding:20px 24px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+          <span class="material-symbols-rounded" style="color:white;font-size:22px;">account_balance</span>
+        </div>
+        <div>
+          <div class="modal-title" style="color:white;font-size:16px;font-weight:700;">Export รายการเคลื่อนไหวพัสดุ</div>
+          <div style="color:rgba(255,255,255,0.75);font-size:12px;margin-top:2px;">เหมือนรายการเคลื่อนไหวบัญชีธนาคาร</div>
+        </div>
+      </div>
+      <button class="btn-icon" onclick="document.getElementById('export-modal').classList.remove('active')" style="color:white;">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:24px;display:flex;flex-direction:column;gap:18px;">
+
+      <!-- Date Range -->
+      <div style="background:var(--neutral-50,#f8f9fa);border-radius:12px;padding:16px;border:1px solid var(--border-light,#eee);">
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+          <span class="material-symbols-rounded" style="font-size:15px;">date_range</span> เลือกช่วงวันที่
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" for="exp-date-from" style="font-size:12px;">จากวันที่</label>
+            <input type="date" id="exp-date-from" class="form-control" />
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" for="exp-date-to" style="font-size:12px;">ถึงวันที่</label>
+            <input type="date" id="exp-date-to" class="form-control" />
+          </div>
+        </div>
+        <!-- Quick date shortcuts -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+          <button class="btn btn-sm btn-outline" onclick="setDateRange(7)" id="quick-7d">7 วันล่าสุด</button>
+          <button class="btn btn-sm btn-outline" onclick="setDateRange(30)" id="quick-30d">30 วันล่าสุด</button>
+          <button class="btn btn-sm btn-outline" onclick="setDateRange(90)" id="quick-90d">90 วันล่าสุด</button>
+          <button class="btn btn-sm btn-outline" onclick="setThisMonth()" id="quick-month">เดือนนี้</button>
+        </div>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="form-group" style="margin:0;">
+        <label class="form-label" for="exp-type">
+          <span class="material-symbols-rounded" style="font-size:15px;">filter_list</span> ประเภทรายการ
+        </label>
+        <select id="exp-type" class="form-control">
+          <option value="">ทุกประเภท (รับเข้า + จ่ายออก + โอนย้าย + ปรับยอด)</option>
+          <option value="Receive">รับเข้าเท่านั้น</option>
+          <option value="Issue">จ่ายออกเท่านั้น</option>
+          <option value="Transfer">โอนย้ายเท่านั้น</option>
+          <option value="Adjust">ปรับยอดเท่านั้น</option>
+        </select>
+      </div>
+
+      <!-- Preview count -->
+      <div id="exp-preview" style="background:var(--primary-50,#e8f0fe);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--primary-800,#1a237e);display:flex;align-items:center;gap:8px;">
+        <span class="material-symbols-rounded" style="font-size:18px;">info</span>
+        <span id="exp-preview-text">กรุณาเลือกช่วงวันที่</span>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding:16px 24px;border-top:1px solid var(--border-light,#eee);display:flex;gap:10px;">
+      <button type="button" class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('export-modal').classList.remove('active')">ยกเลิก</button>
+      <button type="button" class="btn btn-success" style="flex:2;" id="btn-do-export">
+        <span class="material-symbols-rounded">download</span> ดาวน์โหลด Excel
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
 <script type="module">
@@ -69,12 +145,14 @@ import { getAllItems, getAllTransactions, getLowStockItems } from '../js/db.js';
 import { toast, formatDateTime, formatDate } from '../js/notifications.js';
 
 let allItems = [], allTx = [], lowItems = [], activeTab = 'inventory';
+let allTxFull = []; // includes all types for movement export
 
 async function init() {
   await initApp('รายงาน', 'Reports');
-  allItems = await getAllItems();
-  allTx    = (await getAllTransactions()).filter(t => t.transaction_type !== 'Login');
-  lowItems = await getLowStockItems();
+  allItems  = await getAllItems();
+  allTxFull = await getAllTransactions();
+  allTx     = allTxFull.filter(t => t.transaction_type !== 'Login' && t.transaction_type !== 'Logout');
+  lowItems  = await getLowStockItems();
 
   document.querySelectorAll('.tab-item').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -87,6 +165,14 @@ async function init() {
 
   document.getElementById('btn-export')?.addEventListener('click', doExport);
   document.getElementById('btn-print')?.addEventListener('click', () => window.print());
+  document.getElementById('btn-export-movement')?.addEventListener('click', openExportModal);
+  document.getElementById('btn-do-export')?.addEventListener('click', doExportMovement);
+
+  // Date input preview update
+  ['exp-date-from','exp-date-to','exp-type'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', updatePreview);
+  });
+
   renderReport();
 }
 
@@ -392,6 +478,108 @@ function doExport() {
     default:
       toast.info('Export', 'เลือกรายงานก่อนส่งออก');
   }
+}
+
+/* ── Export Movement Modal ── */
+function openExportModal() {
+  const today = new Date();
+  const from  = new Date(); from.setDate(from.getDate() - 30);
+  document.getElementById('exp-date-to').value   = today.toISOString().split('T')[0];
+  document.getElementById('exp-date-from').value = from.toISOString().split('T')[0];
+  document.getElementById('exp-type').value = '';
+  updatePreview();
+  document.getElementById('export-modal').classList.add('active');
+}
+
+window.setDateRange = function(days) {
+  const today = new Date();
+  const from  = new Date(); from.setDate(from.getDate() - days);
+  document.getElementById('exp-date-to').value   = today.toISOString().split('T')[0];
+  document.getElementById('exp-date-from').value = from.toISOString().split('T')[0];
+  updatePreview();
+};
+
+window.setThisMonth = function() {
+  const today = new Date();
+  const from  = new Date(today.getFullYear(), today.getMonth(), 1);
+  document.getElementById('exp-date-to').value   = today.toISOString().split('T')[0];
+  document.getElementById('exp-date-from').value = from.toISOString().split('T')[0];
+  updatePreview();
+};
+
+function updatePreview() {
+  const dateFrom = document.getElementById('exp-date-from')?.value;
+  const dateTo   = document.getElementById('exp-date-to')?.value;
+  const type     = document.getElementById('exp-type')?.value || '';
+  if (!dateFrom || !dateTo) {
+    document.getElementById('exp-preview-text').textContent = 'กรุณาเลือกช่วงวันที่';
+    return;
+  }
+  const movTx = allTxFull.filter(t => {
+    const d = t.datetime ? t.datetime.split('T')[0] : '';
+    const mainTypes = ['Receive','Issue','Transfer','Adjust'];
+    return mainTypes.includes(t.transaction_type) &&
+           d >= dateFrom && d <= dateTo &&
+           (!type || t.transaction_type === type);
+  });
+  const recv  = movTx.filter(t => t.transaction_type === 'Receive').length;
+  const issue = movTx.filter(t => t.transaction_type === 'Issue').length;
+  const tf    = movTx.filter(t => t.transaction_type === 'Transfer').length;
+  const adj   = movTx.filter(t => t.transaction_type === 'Adjust').length;
+  document.getElementById('exp-preview-text').innerHTML =
+    `พบ <strong>${movTx.length} รายการ</strong> ` +
+    `(รับเข้า ${recv} · จ่ายออก ${issue} · โอนย้าย ${tf} · ปรับยอด ${adj})`;
+}
+
+function doExportMovement() {
+  const dateFrom = document.getElementById('exp-date-from')?.value;
+  const dateTo   = document.getElementById('exp-date-to')?.value;
+  const type     = document.getElementById('exp-type')?.value || '';
+  if (!dateFrom || !dateTo) {
+    toast.error('กรุณาเลือกช่วงวันที่');
+    return;
+  }
+  const mainTypes = ['Receive','Issue','Transfer','Adjust'];
+  const movTx = allTxFull.filter(t => {
+    const d = t.datetime ? t.datetime.split('T')[0] : '';
+    return mainTypes.includes(t.transaction_type) &&
+           d >= dateFrom && d <= dateTo &&
+           (!type || t.transaction_type === type);
+  }).sort((a,b) => new Date(a.datetime) - new Date(b.datetime));
+
+  if (movTx.length === 0) {
+    toast.error('ไม่มีข้อมูล', 'ไม่พบรายการในช่วงวันที่ที่เลือก');
+    return;
+  }
+
+  const typeLabel = { Receive:'นำเข้า', Issue:'จ่ายออก', Transfer:'โอนย้าย', Adjust:'ปรับยอด' };
+
+  const data = movTx.map(t => {
+    const item = allItems.find(i => i.item_id === t.item_id) ||
+                 allItems.find(i => i.barcode === t.barcode);
+    const dt = t.datetime ? new Date(t.datetime) : null;
+    const dateStr = dt ? dt.toLocaleDateString('th-TH', {day:'2-digit',month:'2-digit',year:'numeric'}) : '';
+    const timeStr = dt ? dt.toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
+    return {
+      'วันที่':               dateStr,
+      'เวลา':                 timeStr,
+      'ชื่อพัสดุ':             item?.item_name || t.barcode || '-',
+      'บาร์โค้ด':             t.barcode || '',
+      'หมวดหมู่':             item?.category || '',
+      'สถานะ':               typeLabel[t.transaction_type] || t.transaction_type,
+      'จำนวน':               t.quantity ?? '',
+      'หน่วย':               item?.unit || '',
+      'ยอดคงเหลือ':          t.balance_after_transaction ?? '',
+      'ชื่อผู้ทำรายการ':      t.user_name || '',
+      'สถานที่':             t.location || item?.location || '',
+      'สถานที่ปลายทาง':      t.target_location || '',
+      'หมายเหตุ':            t.remarks || '',
+    };
+  });
+
+  const filename = `EMS_รายการเคลื่อนไหว_${dateFrom}_ถึง_${dateTo}.xlsx`;
+  exportToExcel(data, filename, 'รายการเคลื่อนไหว');
+  document.getElementById('export-modal').classList.remove('active');
 }
 
 init().catch(console.error);
