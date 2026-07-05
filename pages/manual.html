@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="คู่มือการใช้งาน EMS Stock Manager — ระบบบริหารจัดการคลังพัสดุการแพทย์" />
+  <title>คู่มือการใช้งาน — EMS Stock Manager</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+  <style>
+    /* ── Manual-specific styles ── */
+    .manual-hero {
+      background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-600) 50%, var(--teal-600) 100%);
+      border-radius: var(--radius-xl);
+      padding: 48px 40px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .manual-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 260px; height: 260px;
+      background: rgba(255,255,255,.06);
+      border-radius: 50%;
+    }
+    .manual-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -40px;
+      width: 320px; height: 320px;
+      background: rgba(255,255,255,.04);
+      border-radius: 50%;
+    }
+    .manual-hero-content { position: relative; z-index: 1; }
+    .manual-hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: .5px;
+      margin-bottom: 16px;
+    }
+    .manual-hero h1 {
+      font-size: 32px; font-weight: 800;
+      line-height: 1.2; margin-bottom: 12px;
+      letter-spacing: -.5px;
+    }
+    .manual-hero p {
+      font-size: 15px; color: rgba(255,255,255,.75);
+      line-height: 1.7; max-width: 560px;
+    }
+    .manual-hero-stats {
+      display: flex; gap: 32px; margin-top: 32px; flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-num {
+      font-size: 28px; font-weight: 800; line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px;
+    }
+
+    /* TOC */
+    .manual-toc {
+      background: var(--surface-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .toc-title {
+      font-size: 13px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: .8px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+    .toc-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 13px; font-weight: 500;
+    }
+    .toc-item:hover {
+      background: var(--primary-50);
+      border-color: var(--primary-200);
+      color: var(--primary-700);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .toc-item .material-symbols-rounded {
+      font-size: 18px; color: var(--primary-500);
+    }
+
+    /* Section cards */
+    .manual-section {
+      background: var(--surface-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+      overflow: hidden;
+      scroll-margin-top: 80px;
+      transition: box-shadow var(--transition-base);
+    }
+    .manual-section:hover { box-shadow: var(--shadow-md); }
+    .section-header {
+      padding: 22px 24px 20px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .section-icon {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-icon.blue   { background: #E3F2FD; color: #1565C0; }
+    .section-icon.green  { background: #E8F5E9; color: #2E7D32; }
+    .section-icon.orange { background: #FFF3E0; color: #E65100; }
+    .section-icon.red    { background: #FFEBEE; color: #C62828; }
+    .section-icon.teal   { background: #E0F7FA; color: #00838F; }
+    .section-icon.purple { background: #F3E5F5; color: #7B1FA2; }
+    .section-icon.indigo { background: #E8EAF6; color: #283593; }
+    .section-icon.amber  { background: #FFF8E1; color: #F57F17; }
+    .section-icon.pink   { background: #FCE4EC; color: #AD1457; }
+    .section-icon .material-symbols-rounded { font-size: 24px; }
+    .section-title { font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+    .section-subtitle { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .section-body { padding: 24px; }
+
+    /* Steps */
+    .step-list { display: flex; flex-direction: column; gap: 14px; }
+    .step-item {
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-400));
+      color: white; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+      box-shadow: 0 2px 6px rgba(21,101,192,.3);
+    }
+    .step-content {}
+    .step-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+    .step-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Info boxes */
+    .info-box {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px; border-radius: var(--radius-md);
+      font-size: 13px; line-height: 1.6; margin-top: 16px;
+    }
+    .info-box.tip   { background: #E8F5E9; border-left: 3px solid #2E7D32; color: #1B5E20; }
+    .info-box.warn  { background: #FFF3E0; border-left: 3px solid #E65100; color: #BF360C; }
+    .info-box.info  { background: #E1F5FE; border-left: 3px solid #0277BD; color: #01579B; }
+    .info-box.danger{ background: #FFEBEE; border-left: 3px solid #C62828; color: #B71C1C; }
+    .info-box .material-symbols-rounded { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Feature chips */
+    .feature-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: var(--radius-full);
+      font-size: 12px; font-weight: 500;
+      border: 1px solid var(--border-light);
+      background: var(--neutral-50); color: var(--text-secondary);
+    }
+    .chip .material-symbols-rounded { font-size: 15px; }
+
+    /* Role table */
+    .role-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px; }
+    .role-table th {
+      background: var(--neutral-100); color: var(--text-secondary);
+      font-weight: 600; text-align: left; padding: 10px 14px;
+      border-bottom: 2px solid var(--border-light);
+    }
+    .role-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-light); color: var(--text-primary); }
+    .role-table tr:last-child td { border-bottom: none; }
+    .role-table tr:hover td { background: var(--neutral-50); }
+    .badge-role {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 600;
+    }
+    .badge-role.admin  { background: #FCE4EC; color: #AD1457; }
+    .badge-role.staff  { background: #E3F2FD; color: #1565C0; }
+    .badge-role.viewer { background: #E8F5E9; color: #2E7D32; }
+    .check-icon { color: #2E7D32; font-size: 16px; }
+    .cross-icon { color: #BDBDBD; font-size: 16px; }
+
+    /* Two-col layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Developer credit card */
+    .dev-card {
+      background: linear-gradient(135deg, #0D2844 0%, #1565C0 60%, #00838F 100%);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .dev-card::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,.05);
+      border-radius: 50%;
+    }
+    .dev-card::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -60px;
+      width: 350px; height: 350px;
+      background: rgba(255,255,255,.03);
+      border-radius: 50%;
+    }
+    .dev-card-content { position: relative; z-index: 1; }
+    .dev-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: var(--radius-full);
+      padding: 5px 14px; font-size: 11px; font-weight: 600;
+      letter-spacing: .6px; text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .dev-profile {
+      display: flex; align-items: center; gap: 24px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .dev-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      border: 3px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    }
+    .dev-name { font-size: 22px; font-weight: 800; letter-spacing: -.3px; margin-bottom: 4px; }
+    .dev-title { font-size: 14px; color: rgba(255,255,255,.7); line-height: 1.5; }
+    .dev-contact {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px;
+    }
+    .dev-contact-item {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius-md);
+      padding: 8px 14px; font-size: 13px;
+      backdrop-filter: blur(6px);
+      transition: background var(--transition-base);
+    }
+    .dev-contact-item:hover { background: rgba(255,255,255,.18); }
+    .dev-contact-item .material-symbols-rounded { font-size: 16px; opacity: .8; }
+    .dev-divider {
+      height: 1px; background: rgba(255,255,255,.12); margin: 24px 0;
+    }
+    .dev-version-info {
+      display: flex; gap: 24px; flex-wrap: wrap;
+    }
+    .dev-version-item { }
+    .dev-version-label { font-size: 11px; color: rgba(255,255,255,.5); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
+    .dev-version-val { font-size: 14px; font-weight: 600; }
+
+    /* QR hint */
+    .qr-steps {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 16px;
+    }
+    .qr-step-card {
+      background: var(--neutral-50); border: 1px solid var(--border-light);
+      border-radius: var(--radius-md); padding: 16px; text-align: center;
+    }
+    .qr-step-icon {
+      width: 44px; height: 44px; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--primary-600), var(--teal-500));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px; color: white;
+    }
+    .qr-step-icon .material-symbols-rounded { font-size: 22px; }
+    .qr-step-num { font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: .5px; margin-bottom: 4px; }
+    .qr-step-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* Scroll to top */
+    #back-to-top {
+      position: fixed; bottom: 28px; right: 28px;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
+      color: white; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-lg);
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--transition-base), transform var(--transition-spring);
+      z-index: 100;
+    }
+    #back-to-top.visible { opacity: 1; pointer-events: auto; }
+    #back-to-top:hover { transform: translateY(-3px); }
+
+    @media (max-width: 768px) {
+      .manual-hero { padding: 32px 20px; }
+      .manual-hero h1 { font-size: 22px; }
+      .manual-hero-stats { gap: 20px; }
+      .section-body { padding: 16px; }
+      .dev-card { padding: 24px; }
+      .dev-profile { gap: 16px; }
+      .dev-name { font-size: 18px; }
+      #back-to-top { bottom: 80px; right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="page-loader">
+  <div class="loader-logo">🏥</div>
+  <div class="loader-text">EMS Stock Manager</div>
+  <div class="loader-sub">กำลังโหลดคู่มือการใช้งาน...</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- Sidebar overlay -->
+<div id="sidebar-overlay" class="sidebar-overlay"
+  onclick="document.getElementById('sidebar').classList.remove('mobile-open');this.classList.remove('active');"></div>
+
+<!-- App shell -->
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="main-content">
+    <header id="topbar" class="topbar"></header>
+
+    <main class="page-content page-enter">
+
+      <!-- ── Hero Banner ── -->
+      <div class="manual-hero">
+        <div class="manual-hero-content">
+          <div class="manual-hero-badge">
+            <span class="material-symbols-rounded" style="font-size:14px;">menu_book</span>
+            คู่มือการใช้งาน
+          </div>
+          <h1>EMS Stock Manager<br>User Manual</h1>
+          <p>คู่มือการใช้งานระบบบริหารจัดการคลังพัสดุการแพทย์สำหรับหน่วย EMS และโรงพยาบาล ครอบคลุมทุกฟีเจอร์และขั้นตอนการใช้งาน</p>
+          <div class="manual-hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-num">8</div>
+              <div class="hero-stat-label">หน้าในระบบ</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-num">3</div>
+              <div class="hero-stat-label">ระดับสิทธิ์</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-num">26+</div>
+              <div class="hero-stat-label">พัสดุ EMS</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-num">5</div>
+              <div class="hero-stat-label">สถานที่</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Table of Contents ── -->
+      <div class="manual-toc">
+        <div class="toc-title">
+          <span class="material-symbols-rounded" style="font-size:16px;">format_list_bulleted</span>
+          สารบัญ
+        </div>
+        <div class="toc-grid">
+          <a class="toc-item" href="#sec-login">
+            <span class="material-symbols-rounded">login</span> การเข้าสู่ระบบ
+          </a>
+          <a class="toc-item" href="#sec-dashboard">
+            <span class="material-symbols-rounded">dashboard</span> Dashboard
+          </a>
+          <a class="toc-item" href="#sec-inventory">
+            <span class="material-symbols-rounded">inventory_2</span> คลังพัสดุ
+          </a>
+          <a class="toc-item" href="#sec-receive">
+            <span class="material-symbols-rounded">add_shopping_cart</span> รับพัสดุเข้า
+          </a>
+          <a class="toc-item" href="#sec-issue">
+            <span class="material-symbols-rounded">shopping_cart_checkout</span> จ่ายพัสดุออก
+          </a>
+          <a class="toc-item" href="#sec-qr">
+            <span class="material-symbols-rounded">qr_code_scanner</span> การสแกน QR
+          </a>
+          <a class="toc-item" href="#sec-transactions">
+            <span class="material-symbols-rounded">receipt_long</span> ประวัติการทำรายการ
+          </a>
+          <a class="toc-item" href="#sec-reports">
+            <span class="material-symbols-rounded">bar_chart</span> รายงาน
+          </a>
+          <a class="toc-item" href="#sec-checklist">
+            <span class="material-symbols-rounded">checklist</span> Checklist ประจำวัน
+          </a>
+          <a class="toc-item" href="#sec-users">
+            <span class="material-symbols-rounded">manage_accounts</span> จัดการผู้ใช้
+          </a>
+          <a class="toc-item" href="#sec-settings">
+            <span class="material-symbols-rounded">settings</span> ตั้งค่า
+          </a>
+          <a class="toc-item" href="#sec-roles">
+            <span class="material-symbols-rounded">shield</span> สิทธิ์การใช้งาน
+          </a>
+          <a class="toc-item" href="#sec-offline">
+            <span class="material-symbols-rounded">offline_bolt</span> การใช้งานออฟไลน์
+          </a>
+          <a class="toc-item" href="#sec-developer">
+            <span class="material-symbols-rounded">code</span> เครดิตผู้พัฒนา
+          </a>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 1. การเข้าสู่ระบบ -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-login">
+        <div class="section-header">
+          <div class="section-icon blue">
+            <span class="material-symbols-rounded">login</span>
+          </div>
+          <div>
+            <div class="section-title">1. การเข้าสู่ระบบ</div>
+            <div class="section-subtitle">วิธีเข้าใช้งานระบบ EMS Stock Manager</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">เปิดระบบ</div>
+                <div class="step-desc">เปิด Browser และเข้าสู่ URL ของระบบ EMS Stock Manager ที่ได้รับจากผู้ดูแลระบบ หรือเปิดผ่าน App ที่ติดตั้งบนอุปกรณ์</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">กรอกชื่อผู้ใช้และรหัสผ่าน</div>
+                <div class="step-desc">กรอก <strong>ชื่อผู้ใช้ (Username)</strong> และ <strong>รหัสผ่าน (Password)</strong> ที่ได้รับจากผู้ดูแลระบบ</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">กดปุ่ม "เข้าสู่ระบบ"</div>
+                <div class="step-desc">กดปุ่ม <strong>เข้าสู่ระบบ</strong> เพื่อยืนยัน ระบบจะตรวจสอบข้อมูลและนำท่านไปยังหน้า Dashboard</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">ออกจากระบบ</div>
+                <div class="step-desc">กดที่ชื่อผู้ใช้ด้านล่าง Sidebar หรือกดปุ่ม <span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">logout</span> เพื่อออกจากระบบ</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box warn">
+            <span class="material-symbols-rounded">warning</span>
+            <span>หากลืมรหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ (Admin) เพื่อรีเซ็ตรหัสผ่าน</span>
+          </div>
+          <div class="feature-chips">
+            <span class="chip"><span class="material-symbols-rounded">lock</span> รหัสผ่านถูกเข้ารหัส</span>
+            <span class="chip"><span class="material-symbols-rounded">devices</span> รองรับทุกอุปกรณ์</span>
+            <span class="chip"><span class="material-symbols-rounded">install_mobile</span> ติดตั้งเป็น App ได้</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 2. Dashboard -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-dashboard">
+        <div class="section-header">
+          <div class="section-icon teal">
+            <span class="material-symbols-rounded">dashboard</span>
+          </div>
+          <div>
+            <div class="section-title">2. Dashboard — ภาพรวมสต๊อก</div>
+            <div class="section-subtitle">หน้าหลักที่แสดงสรุปสถานะคลังพัสดุแบบ Real-time</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="two-col">
+            <div>
+              <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px;">
+                Dashboard แสดงข้อมูลสรุปภาพรวมของคลังพัสดุ ได้แก่:
+              </p>
+              <div class="step-list">
+                <div class="step-item">
+                  <div class="step-num" style="background:linear-gradient(135deg,#1565C0,#42A5F5);">📊</div>
+                  <div class="step-content">
+                    <div class="step-title">KPI Cards</div>
+                    <div class="step-desc">แสดงจำนวนพัสดุทั้งหมด, สต๊อกรวม, พัสดุสต๊อกต่ำ, และรายการวันนี้</div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-num" style="background:linear-gradient(135deg,#1565C0,#42A5F5);">📈</div>
+                  <div class="step-content">
+                    <div class="step-title">กราฟรับ/จ่าย 7 วัน</div>
+                    <div class="step-desc">แสดงแนวโน้มการรับเข้าและจ่ายออกพัสดุย้อนหลัง 7 วัน</div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-num" style="background:linear-gradient(135deg,#1565C0,#42A5F5);">⚠️</div>
+                  <div class="step-content">
+                    <div class="step-title">รายการสต๊อกต่ำ</div>
+                    <div class="step-desc">แสดงรายการพัสดุที่ต้องเติมด่วน พร้อม Progress Bar บอกปริมาณที่เหลือ</div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-num" style="background:linear-gradient(135deg,#1565C0,#42A5F5);">🕐</div>
+                  <div class="step-content">
+                    <div class="step-title">รายการล่าสุด</div>
+                    <div class="step-desc">แสดงประวัติการทำรายการ 6 รายการล่าสุดแบบ Real-time</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="info-box info">
+                <span class="material-symbols-rounded">info</span>
+                <div>
+                  <strong>กดที่ KPI Card</strong> เพื่อไปยังหน้าคลังพัสดุที่กรองข้อมูลตามหมวดหมู่นั้นๆ โดยอัตโนมัติ
+                </div>
+              </div>
+              <div class="info-box tip" style="margin-top:12px;">
+                <span class="material-symbols-rounded">lightbulb</span>
+                <div>
+                  หากมีพัสดุสต๊อกต่ำ จะมี <strong>Badge แจ้งเตือน</strong> (จุดแดง) ปรากฏที่เมนู คลังพัสดุ ใน Sidebar
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 3. คลังพัสดุ -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-inventory">
+        <div class="section-header">
+          <div class="section-icon blue">
+            <span class="material-symbols-rounded">inventory_2</span>
+          </div>
+          <div>
+            <div class="section-title">3. คลังพัสดุ — Inventory</div>
+            <div class="section-subtitle">ดู, ค้นหา, และจัดการพัสดุทั้งหมดในระบบ</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">🔍</div>
+              <div class="step-content">
+                <div class="step-title">ค้นหาพัสดุ</div>
+                <div class="step-desc">พิมพ์ชื่อพัสดุ, บาร์โค้ด, หรือหมวดหมู่ในช่อง Search เพื่อกรองรายการ</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">📍</div>
+              <div class="step-content">
+                <div class="step-title">กรองตามสถานที่</div>
+                <div class="step-desc">เลือก Dropdown สถานที่ (รถ EMS, ห้องฉุกเฉิน ฯลฯ) เพื่อดูสต๊อกของแต่ละจุด</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">⚠️</div>
+              <div class="step-content">
+                <div class="step-title">ฟิลเตอร์สต๊อกต่ำ</div>
+                <div class="step-desc">กดปุ่ม "สต๊อกต่ำ" เพื่อดูเฉพาะพัสดุที่มีปริมาณต่ำกว่าค่าขั้นต่ำที่กำหนด</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">➕</div>
+              <div class="step-content">
+                <div class="step-title">เพิ่มพัสดุใหม่</div>
+                <div class="step-desc">กดปุ่ม <strong>"+ เพิ่มพัสดุ"</strong> กรอกข้อมูลชื่อ, หน่วย, สถานที่, จำนวนขั้นต่ำ และ Barcode</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">✏️</div>
+              <div class="step-content">
+                <div class="step-title">แก้ไข / ลบพัสดุ</div>
+                <div class="step-desc">กดปุ่ม <span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">edit</span> เพื่อแก้ไข หรือ <span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">delete</span> เพื่อลบ (เฉพาะ Admin เท่านั้น)</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">📋</div>
+              <div class="step-content">
+                <div class="step-title">สลับมุมมอง Grid / List</div>
+                <div class="step-desc">กดไอคอนมุมมองที่มุมขวาบนเพื่อสลับระหว่างการแสดงผลแบบ Grid และ List</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box tip">
+            <span class="material-symbols-rounded">lightbulb</span>
+            <span>Stock Bar สีแดง = ต้องเติมด่วน, สีเหลือง = ใกล้หมด, สีเขียว = ปกติ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 4. รับพัสดุเข้า -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-receive">
+        <div class="section-header">
+          <div class="section-icon green">
+            <span class="material-symbols-rounded">add_shopping_cart</span>
+          </div>
+          <div>
+            <div class="section-title">4. รับพัสดุเข้า — Receive Stock</div>
+            <div class="section-subtitle">บันทึกการรับพัสดุเวชภัณฑ์เข้าคลัง</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">เลือกสถานที่</div>
+                <div class="step-desc">เลือกสถานที่ที่จะรับพัสดุเข้า เช่น รถ EMS 1, ห้องฉุกเฉิน เป็นต้น</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">ค้นหาหรือสแกนพัสดุ</div>
+                <div class="step-desc">พิมพ์ชื่อพัสดุในช่องค้นหา หรือกดปุ่ม <span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">qr_code_scanner</span> เพื่อสแกน QR/Barcode</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">เพิ่มลงตะกร้า</div>
+                <div class="step-desc">กด <strong>"+ เพิ่ม"</strong> เพื่อเพิ่มพัสดุลงในรายการรับเข้า ปรับจำนวนได้ด้วยปุ่ม +/-</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">ยืนยันการรับเข้า</div>
+                <div class="step-desc">ตรวจสอบรายการในตะกร้า จากนั้นกดปุ่ม <strong>"ยืนยันรับเข้า"</strong> ระบบจะอัปเดตสต๊อกทันที</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box info">
+            <span class="material-symbols-rounded">info</span>
+            <span>ระบบจะบันทึก Log ผู้ที่รับพัสดุเข้า, วันเวลา, และจำนวนไว้ในประวัติการทำรายการอัตโนมัติ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 5. จ่ายพัสดุออก -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-issue">
+        <div class="section-header">
+          <div class="section-icon orange">
+            <span class="material-symbols-rounded">shopping_cart_checkout</span>
+          </div>
+          <div>
+            <div class="section-title">5. จ่ายพัสดุออก — Issue Stock</div>
+            <div class="section-subtitle">บันทึกการเบิกจ่ายพัสดุออกจากคลัง</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">เลือกสถานที่</div>
+                <div class="step-desc">เลือกสถานที่ที่จะเบิกพัสดุออก เพื่อให้ระบบดึงสต๊อกจากจุดนั้นโดยอัตโนมัติ</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">ค้นหาหรือสแกนพัสดุ</div>
+                <div class="step-desc">พิมพ์ชื่อพัสดุหรือสแกน QR Code เพื่อเพิ่มลงรายการจ่ายออก</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">ระบุจำนวนที่ต้องการเบิก</div>
+                <div class="step-desc">กรอกจำนวนที่ต้องการ ระบบจะแสดงเตือนหากจำนวนเกินสต๊อกที่มีอยู่</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">ยืนยันการจ่ายออก</div>
+                <div class="step-desc">กดปุ่ม <strong>"ยืนยันจ่ายออก"</strong> ระบบจะหักสต๊อกและบันทึกรายการทันที</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box danger">
+            <span class="material-symbols-rounded">error</span>
+            <span>ไม่สามารถจ่ายพัสดุออกเกินจำนวนที่มีในสต๊อก หากสต๊อกเป็น 0 ปุ่มจ่ายออกจะถูก Disable อัตโนมัติ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 6. QR Code Scanner -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-qr">
+        <div class="section-header">
+          <div class="section-icon indigo">
+            <span class="material-symbols-rounded">qr_code_scanner</span>
+          </div>
+          <div>
+            <div class="section-title">6. การสแกน QR Code / Barcode</div>
+            <div class="section-subtitle">ใช้กล้องอุปกรณ์สแกนพัสดุอย่างรวดเร็ว</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:16px;">
+            ระบบรองรับการสแกน QR Code และ Barcode ผ่านกล้องของอุปกรณ์ เพื่อความรวดเร็วในการรับ/จ่ายพัสดุ
+          </p>
+          <div class="qr-steps">
+            <div class="qr-step-card">
+              <div class="qr-step-icon"><span class="material-symbols-rounded">qr_code_scanner</span></div>
+              <div class="qr-step-num">ขั้นที่ 1</div>
+              <div class="qr-step-text">กดปุ่ม สแกน QR ที่หน้า รับเข้า หรือ จ่ายออก</div>
+            </div>
+            <div class="qr-step-card">
+              <div class="qr-step-icon"><span class="material-symbols-rounded">photo_camera</span></div>
+              <div class="qr-step-num">ขั้นที่ 2</div>
+              <div class="qr-step-text">อนุญาตการเข้าถึงกล้องเมื่อ Browser ถาม</div>
+            </div>
+            <div class="qr-step-card">
+              <div class="qr-step-icon"><span class="material-symbols-rounded">center_focus_strong</span></div>
+              <div class="qr-step-num">ขั้นที่ 3</div>
+              <div class="qr-step-text">จ่อกล้องไปที่ QR Code หรือ Barcode ของพัสดุ</div>
+            </div>
+            <div class="qr-step-card">
+              <div class="qr-step-icon"><span class="material-symbols-rounded">check_circle</span></div>
+              <div class="qr-step-num">ขั้นที่ 4</div>
+              <div class="qr-step-text">ระบบค้นหาพัสดุโดยอัตโนมัติและเพิ่มลงรายการทันที</div>
+            </div>
+          </div>
+          <div class="info-box tip">
+            <span class="material-symbols-rounded">lightbulb</span>
+            <span>สามารถพิมพ์ QR Code ของพัสดุแต่ละรายการจากหน้า <strong>คลังพัสดุ</strong> เพื่อติดที่กล่องหรือตู้เก็บพัสดุ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 7. ประวัติการทำรายการ -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-transactions">
+        <div class="section-header">
+          <div class="section-icon purple">
+            <span class="material-symbols-rounded">receipt_long</span>
+          </div>
+          <div>
+            <div class="section-title">7. ประวัติการทำรายการ — Transactions</div>
+            <div class="section-subtitle">ดูบันทึกการรับ/จ่ายพัสดุทั้งหมดในระบบ</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">📅</div>
+              <div class="step-content">
+                <div class="step-title">กรองตามวันที่</div>
+                <div class="step-desc">เลือกช่วงวันที่เริ่มต้น-สิ้นสุด เพื่อดูประวัติในช่วงเวลาที่ต้องการ</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">🔍</div>
+              <div class="step-content">
+                <div class="step-title">ค้นหาและกรอง</div>
+                <div class="step-desc">ค้นหาด้วยชื่อพัสดุ, ผู้ทำรายการ, ประเภทรายการ (รับเข้า/จ่ายออก)</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">📊</div>
+              <div class="step-content">
+                <div class="step-title">ดูรายละเอียด</div>
+                <div class="step-desc">แต่ละรายการแสดง ชื่อพัสดุ, จำนวน, สถานที่, ผู้ทำรายการ, และวันเวลา</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box info">
+            <span class="material-symbols-rounded">info</span>
+            <span>รายการทำงานแบบ <strong>Real-time</strong> — ข้อมูลจะอัปเดตอัตโนมัติเมื่อมีการทำรายการใหม่</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 8. รายงาน -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-reports">
+        <div class="section-header">
+          <div class="section-icon amber">
+            <span class="material-symbols-rounded">bar_chart</span>
+          </div>
+          <div>
+            <div class="section-title">8. รายงาน — Reports</div>
+            <div class="section-subtitle">วิเคราะห์และส่งออกข้อมูลการใช้พัสดุ</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="two-col">
+            <div class="step-list">
+              <div class="step-item">
+                <div class="step-num">📈</div>
+                <div class="step-content">
+                  <div class="step-title">รายงานการใช้งาน</div>
+                  <div class="step-desc">ดูสถิติการรับเข้า-จ่ายออกพัสดุในแต่ละช่วงเวลา พร้อมกราฟแสดงผล</div>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">🏆</div>
+                <div class="step-content">
+                  <div class="step-title">พัสดุใช้มากที่สุด</div>
+                  <div class="step-desc">แสดง Top 10 พัสดุที่ถูกเบิกใช้บ่อยที่สุด สำหรับวางแผนจัดซื้อ</div>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">📤</div>
+                <div class="step-content">
+                  <div class="step-title">Export ข้อมูล</div>
+                  <div class="step-desc">ส่งออกรายงานเป็นไฟล์ PDF หรือ CSV เพื่อนำไปใช้งานต่อ</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="info-box tip">
+                <span class="material-symbols-rounded">lightbulb</span>
+                <div>
+                  ใช้รายงานเพื่อวางแผน<strong>จัดซื้อพัสดุล่วงหน้า</strong> โดยดูจากอัตราการใช้งานเฉลี่ยต่อเดือน
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 9. Checklist -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-checklist">
+        <div class="section-header">
+          <div class="section-icon green">
+            <span class="material-symbols-rounded">checklist</span>
+          </div>
+          <div>
+            <div class="section-title">9. Checklist ตรวจสอบพัสดุประจำวัน</div>
+            <div class="section-subtitle">เช็คความครบถ้วนของพัสดุก่อนออกปฏิบัติการ</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">เลือกสถานที่และกะการทำงาน</div>
+                <div class="step-desc">เลือกรถ EMS หรือสถานที่ที่ต้องการตรวจสอบ และกะงาน (เช้า/บ่าย/ดึก)</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">ตรวจนับพัสดุตาม Checklist</div>
+                <div class="step-desc">ทำเครื่องหมายถูก ✓ สำหรับพัสดุที่ครบและพร้อมใช้งาน</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">บันทึกและส่งรายงาน</div>
+                <div class="step-desc">กดปุ่ม <strong>"บันทึก Checklist"</strong> ระบบจะเก็บบันทึกพร้อมชื่อผู้ตรวจและเวลา</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box warn">
+            <span class="material-symbols-rounded">warning</span>
+            <span>ควรทำ Checklist <strong>ทุกวัน</strong> ก่อนออกปฏิบัติการเพื่อความปลอดภัยของผู้ป่วย</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 10. จัดการผู้ใช้ -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-users">
+        <div class="section-header">
+          <div class="section-icon pink">
+            <span class="material-symbols-rounded">manage_accounts</span>
+          </div>
+          <div>
+            <div class="section-title">10. จัดการผู้ใช้ — User Management</div>
+            <div class="section-subtitle">เพิ่ม, แก้ไข, และจัดการสิทธิ์ผู้ใช้ระบบ (เฉพาะ Admin)</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">➕</div>
+              <div class="step-content">
+                <div class="step-title">เพิ่มผู้ใช้ใหม่</div>
+                <div class="step-desc">กรอกชื่อ-นามสกุล, Username, Password และกำหนด Role (Admin / Staff / Viewer)</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">✏️</div>
+              <div class="step-content">
+                <div class="step-title">แก้ไขข้อมูลผู้ใช้</div>
+                <div class="step-desc">เปลี่ยนชื่อ, รหัสผ่าน, หรือ Role ของผู้ใช้ได้ตลอดเวลา</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">🔒</div>
+              <div class="step-content">
+                <div class="step-title">ระงับ / เปิดใช้บัญชี</div>
+                <div class="step-desc">สามารถระงับบัญชีผู้ใช้ชั่วคราวโดยไม่ต้องลบออกจากระบบ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 11. ตั้งค่า -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-settings">
+        <div class="section-header">
+          <div class="section-icon teal">
+            <span class="material-symbols-rounded">settings</span>
+          </div>
+          <div>
+            <div class="section-title">11. ตั้งค่าระบบ — Settings</div>
+            <div class="section-subtitle">ตั้งค่าการสำรองข้อมูลและรูปแบบการแสดงผล</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">📤</div>
+              <div class="step-content">
+                <div class="step-title">Google Sheets Backup</div>
+                <div class="step-desc">ตั้งค่า URL ของ Google Apps Script เพื่อสำรองข้อมูล Transaction ไปยัง Google Sheets โดยอัตโนมัติ</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">🔄</div>
+              <div class="step-content">
+                <div class="step-title">Auto Sync</div>
+                <div class="step-desc">ระบบจะ Sync ข้อมูลอัตโนมัติทุกครั้งที่อุปกรณ์เชื่อมต่ออินเทอร์เน็ต</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">🗑️</div>
+              <div class="step-content">
+                <div class="step-title">รีเซ็ตข้อมูล</div>
+                <div class="step-desc">คืนค่าข้อมูลพัสดุและบัญชีผู้ใช้กลับสู่ค่าเริ่มต้น (เฉพาะ Admin เท่านั้น)</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box danger">
+            <span class="material-symbols-rounded">error</span>
+            <span>การรีเซ็ตข้อมูลเป็นการกระทำที่ไม่สามารถย้อนกลับได้ กรุณาใช้ด้วยความระมัดระวัง</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 12. ระดับสิทธิ์ -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-roles">
+        <div class="section-header">
+          <div class="section-icon indigo">
+            <span class="material-symbols-rounded">shield</span>
+          </div>
+          <div>
+            <div class="section-title">12. ระดับสิทธิ์การใช้งาน — Roles & Permissions</div>
+            <div class="section-subtitle">ระบบมี 3 ระดับสิทธิ์ ควบคุมการเข้าถึงฟีเจอร์ต่างๆ</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <table class="role-table">
+            <thead>
+              <tr>
+                <th>ฟีเจอร์</th>
+                <th><span class="badge-role admin">👑 Admin</span></th>
+                <th><span class="badge-role staff">🩺 Staff</span></th>
+                <th><span class="badge-role viewer">👁 Viewer</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ดูคลังพัสดุ</td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+              </tr>
+              <tr>
+                <td>รับพัสดุเข้า</td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+              </tr>
+              <tr>
+                <td>จ่ายพัสดุออก</td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+              </tr>
+              <tr>
+                <td>เพิ่ม/แก้ไขพัสดุ</td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+              </tr>
+              <tr>
+                <td>ดูรายงาน</td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+              </tr>
+              <tr>
+                <td>จัดการผู้ใช้</td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+              </tr>
+              <tr>
+                <td>ตั้งค่าระบบ</td>
+                <td><span class="material-symbols-rounded check-icon">check_circle</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+                <td><span class="material-symbols-rounded cross-icon">cancel</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 13. การใช้งานออฟไลน์ -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-offline">
+        <div class="section-header">
+          <div class="section-icon amber">
+            <span class="material-symbols-rounded">offline_bolt</span>
+          </div>
+          <div>
+            <div class="section-title">13. การใช้งานออฟไลน์ — Offline Mode</div>
+            <div class="section-subtitle">ระบบยังคงทำงานได้แม้ไม่มีสัญญาณอินเทอร์เน็ต</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="two-col">
+            <div>
+              <div class="step-list">
+                <div class="step-item">
+                  <div class="step-num">✅</div>
+                  <div class="step-content">
+                    <div class="step-title">ทำได้ขณะออฟไลน์</div>
+                    <div class="step-desc">ดูสต๊อกพัสดุ, รับ/จ่ายพัสดุ, ทำ Checklist, ดูประวัติรายการ</div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-num">⏸️</div>
+                  <div class="step-content">
+                    <div class="step-title">รอ Sync อัตโนมัติ</div>
+                    <div class="step-desc">รายการที่ทำขณะออฟไลน์จะ Sync ไปยัง Google Sheets ทันทีเมื่อกลับมาออนไลน์</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="info-box tip">
+                <span class="material-symbols-rounded">lightbulb</span>
+                <div>
+                  ติดตั้งระบบเป็น <strong>Progressive Web App (PWA)</strong> บนอุปกรณ์ Android/iOS เพื่อใช้งานออฟไลน์ได้สะดวกยิ่งขึ้น กดปุ่ม "ติดตั้งแอป" ที่ปรากฏใน Browser
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────── -->
+      <!-- 14. เครดิตผู้พัฒนา -->
+      <!-- ─────────────────────────────────────── -->
+      <div class="manual-section" id="sec-developer" style="border:none;box-shadow:none;background:transparent;">
+        <div class="dev-card">
+          <div class="dev-card-content">
+            <div class="dev-label">
+              <span class="material-symbols-rounded" style="font-size:14px;">code</span>
+              ผู้พัฒนาระบบ — Developer Credit
+            </div>
+
+            <div class="dev-profile">
+              <div class="dev-avatar">ปย</div>
+              <div>
+                <div class="dev-name">น.ส.ปิยะพร สอนดี</div>
+                <div class="dev-title">
+                  พยาบาลวิชาชีพ<br>
+                  หน่วยบริการการแพทย์ฉุกเฉิน (EMS)
+                </div>
+              </div>
+            </div>
+
+            <div class="dev-contact">
+              <div class="dev-contact-item">
+                <span class="material-symbols-rounded">mail</span>
+                Detectivepy@gmail.com
+              </div>
+              <div class="dev-contact-item">
+                <span class="material-symbols-rounded">local_hospital</span>
+                หน่วยบริการการแพทย์ฉุกเฉิน
+              </div>
+              <div class="dev-contact-item">
+                <span class="material-symbols-rounded">medication</span>
+                พยาบาลวิชาชีพ
+              </div>
+            </div>
+
+            <div class="dev-divider"></div>
+
+            <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:20px;">
+              ระบบ EMS Stock Manager พัฒนาขึ้นเพื่อแก้ปัญหาการบริหารจัดการคลังพัสดุการแพทย์ฉุกเฉินในหน่วย EMS ให้มีประสิทธิภาพมากยิ่งขึ้น ลดข้อผิดพลาดจากการบันทึกด้วยมือ และช่วยให้ทีมพยาบาลสามารถติดตามสต๊อกพัสดุได้แบบ Real-time ทั้งในและนอกโรงพยาบาล
+            </div>
+
+            <div class="dev-version-info">
+              <div class="dev-version-item">
+                <div class="dev-version-label">ระบบ</div>
+                <div class="dev-version-val">EMS Stock Manager</div>
+              </div>
+              <div class="dev-version-item">
+                <div class="dev-version-label">เทคโนโลยี</div>
+                <div class="dev-version-val">PWA · Firebase · IndexedDB</div>
+              </div>
+              <div class="dev-version-item">
+                <div class="dev-version-label">ปี</div>
+                <div class="dev-version-val">2025 – 2026</div>
+              </div>
+              <div class="dev-version-item">
+                <div class="dev-version-label">สิทธิ์</div>
+                <div class="dev-version-val">© สงวนลิขสิทธิ์</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom spacer -->
+      <div style="height: 32px;"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="back-to-top" title="กลับด้านบน">
+  <span class="material-symbols-rounded">arrow_upward</span>
+</button>
+
+<!-- ── Scripts ── -->
+<script type="module">
+  import { initApp } from '../js/app.js';
+
+  async function init() {
+    await initApp();
+  }
+
+  // Smooth scroll for TOC links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Back to top button
+  const backToTop = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) {
+      backToTop.classList.add('visible');
+    } else {
+      backToTop.classList.remove('visible');
+    }
+  }, { passive: true });
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Animate sections on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.06 });
+
+  document.querySelectorAll('.manual-section').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = `opacity 0.5s ease ${i * 0.04}s, transform 0.5s ease ${i * 0.04}s`;
+    observer.observe(el);
+  });
+
+  init().catch(console.error);
+</script>
+
+</body>
+</html>

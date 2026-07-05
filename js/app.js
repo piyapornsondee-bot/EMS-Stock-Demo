@@ -20,6 +20,7 @@ const PAGE = (() => {
   if (p.includes('checklist'))    return 'checklist';
   if (p.includes('users'))        return 'users';
   if (p.includes('settings'))     return 'settings';
+  if (p.includes('manual'))        return 'manual';
   return 'dashboard';
 })();
 
@@ -33,6 +34,7 @@ const NAV_ITEMS = [
   { id: 'reports',      label: 'รายงาน',              icon: 'bar_chart',        href: 'reports.html',      permission: 'view_reports' },
   { id: 'users',        label: 'จัดการผู้ใช้',          icon: 'manage_accounts',  href: 'users.html',        permission: 'manage_users' },
   { id: 'settings',     label: 'ตั้งค่า',              icon: 'settings',         href: 'settings.html',     permission: 'manage_users' },
+  { id: 'manual',       label: 'คู่มือการใช้งาน',      icon: 'menu_book',        href: 'manual.html',       permission: null },
 ];
 
 /* ── Render sidebar ── */
