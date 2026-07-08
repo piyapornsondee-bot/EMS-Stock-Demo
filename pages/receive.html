@@ -180,12 +180,13 @@ import { toast, formatDateTime } from '../js/notifications.js';
 import { getCurrentUser } from '../js/auth.js';
 
 let selectedItem = null;
+let allItems = [];
 
 async function init() {
   await initApp('รับพัสดุเข้า', 'Receive Stock');
   // Pre-cache all items for recent receives name lookup
-  const allItemsForCache = await getAllItems();
-  window._allItemsCache = allItemsForCache;
+  allItems = await getAllItems();
+  window._allItemsCache = allItems;
 
   renderRecentReceives();
 
@@ -197,7 +198,7 @@ async function init() {
     }
   };
 
-  window.updateLocationStock = async function(loc) {
+  window.updateLocationStock = function(loc) {
     const customVal = document.getElementById('recv-location-custom')?.value.trim() || '';
     const actualLoc = loc === '__other__' ? customVal : loc;
     const stockDiv = document.getElementById('recv-location-stock');
@@ -208,8 +209,7 @@ async function init() {
       return;
     }
 
-    const items = await getAllItems();
-    const match = items.find(i => i.barcode === selectedItem.barcode && i.location === actualLoc);
+    const match = allItems.find(i => i.barcode === selectedItem.barcode && i.location === actualLoc);
     if (match) {
       stockDiv.innerHTML = `สต๊อกปัจจุบันในคลังนี้: <strong style="color:var(--color-primary);">${match.current_stock}</strong> ${selectedItem.unit}`;
     } else {
@@ -246,7 +246,10 @@ async function init() {
 }
 
 async function selectByBarcode(code) {
-  const item = await getItemByBarcode(code);
+  let item = allItems.find(i => i.barcode === code || i.qr_code === code);
+  if (!item) {
+    item = await getItemByBarcode(code);
+  }
   if (!item) {
     toast.error('ไม่พบรายการ', `ไม่พบพัสดุรหัส "${code}" ในระบบ`);
     return;
@@ -257,8 +260,7 @@ async function selectByBarcode(code) {
 async function searchItems(q) {
   const resultsEl = document.getElementById('search-results');
   if (!q.trim()) { resultsEl.innerHTML = ''; return; }
-  const items = await getAllItems();
-  const found = items.filter(i =>
+  const found = allItems.filter(i =>
     i.item_name?.toLowerCase().includes(q.toLowerCase()) ||
     i.barcode?.toLowerCase().includes(q.toLowerCase())
   ).slice(0, 6);
@@ -420,6 +422,8 @@ async function confirmReceive() {
       </div>
     `;
     document.getElementById('success-modal').classList.add('active');
+    allItems = await getAllItems();
+    window._allItemsCache = allItems;
     renderRecentReceives();
   } catch (err) {
     toast.error('บันทึกล้มเหลว', err.message);

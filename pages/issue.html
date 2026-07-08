@@ -298,8 +298,12 @@ async function init() {
 }
 
 async function selectByBarcode(code) {
-  const items = await getAllItems();
-  const item = items.find(i => i.barcode === code);
+  let item = allItems.find(i => i.barcode === code || i.qr_code === code);
+  if (!item) {
+    const items = await getAllItems();
+    allItems = items;
+    item = allItems.find(i => i.barcode === code || i.qr_code === code);
+  }
   if (!item) { toast.error('ไม่พบรายการ', `ไม่พบพัสดุรหัส "${code}"`); return; }
   selectItem(item);
 }
@@ -307,10 +311,9 @@ async function selectByBarcode(code) {
 async function searchItems(q) {
   const resultsEl = document.getElementById('search-results');
   if (!q.trim()) { resultsEl.innerHTML = ''; return; }
-  const items = await getAllItems();
   // Deduplicate by barcode — show highest-stock location per barcode
   const barcodeMap = new Map();
-  items.forEach(i => {
+  allItems.forEach(i => {
     const existing = barcodeMap.get(i.barcode);
     if (!existing || i.current_stock > existing.current_stock) {
       barcodeMap.set(i.barcode, i);
@@ -535,6 +538,7 @@ async function confirmIssue() {
     `;
 
     document.getElementById('success-modal').classList.add('active');
+    allItems = await getAllItems();
     renderRecentIssues();
   } catch (err) {
     toast.error('บันทึกล้มเหลว', err.message);
