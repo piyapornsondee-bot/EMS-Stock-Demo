@@ -443,11 +443,9 @@
       const email = document.getElementById('reg-email').value.trim().toLowerCase();
       const password = document.getElementById('reg-password').value;
       const password2 = document.getElementById('reg-password2').value;
-      const btn = document.getElementById('register-btn');
       const errEl = document.getElementById('reg-error');
       const errText = document.getElementById('reg-error-text');
       const successEl = document.getElementById('reg-success');
-      const successTx = document.getElementById('reg-success-text');
 
       errEl.style.display = 'none';
       successEl.style.display = 'none';
@@ -470,47 +468,13 @@
         errEl.style.display = 'flex'; return;
       }
 
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> กำลังสมัครสมาชิก...';
-
-      try {
-        // Check duplicate email
-        const existing = await getUserByEmail(email);
-        if (existing) {
-          errText.textContent = 'อีเมลนี้มีในระบบแล้ว กรุณาใช้อีเมลอื่น';
-          errEl.style.display = 'flex';
-          btn.disabled = false;
-          btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> สมัครสมาชิก';
-          return;
-        }
-
-        await dbAdd('users', {
-          full_name: `${firstname} ${lastname}`,
-          email: email,
-          password: password,
-          role: 'Staff',
-          active: true,
-        });
-
-        // Success
-        document.getElementById('register-form').reset();
-        successTx.textContent = `สมัครสมาชิกสำเร็จ! ยินดีต้อนรับ ${firstname} ${lastname} — กรุณาเข้าสู่ระบบ`;
-        successEl.style.display = 'flex';
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> สมัครสมาชิก';
-
-        // Auto switch to login after 2s
-        setTimeout(() => {
-          switchTab('login');
-          document.getElementById('login-email').value = email;
-        }, 2000);
-
-      } catch (err) {
-        errText.textContent = 'เกิดข้อผิดพลาด: ' + err.message;
-        errEl.style.display = 'flex';
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-rounded">person_add</span> สมัครสมาชิก';
-      }
+      // Demo Mode: Block registration
+      errText.innerHTML = `<strong>⚠️ ระบบนี้เป็นเวอร์ชันทดลองใช้งาน (Demo)</strong><br>ไม่สามารถสมัครสมาชิกใหม่ได้ในโหมดนี้ กรุณากดปุ่ม <strong>"ทดลองใช้งาน (Demo Mode)"</strong> เพื่อเข้าใช้งานแทน`;
+      errEl.style.display = 'flex';
+      
+      const form = document.getElementById('register-form');
+      form.style.animation = 'none';
+      setTimeout(() => { form.style.animation = 'shake 0.4s ease'; }, 10);
     });
     // ── Forgot password form ──
     document.getElementById('forgot-form')?.addEventListener('submit', async e => {
