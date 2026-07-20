@@ -4,7 +4,7 @@
    ========================================================= */
 
 import { authGuard, getCurrentUser, logout, hasPermission, getInitials, getRoleBadgeClass } from './auth.js';
-import { seedDatabase, getLowStockItems } from './db.js';
+import { seedDatabase, getLowStockItems, isDemoMode } from './db.js';
 import { updateNotifBadge, renderNotifDropdown, checkLowStockAlerts, toast } from './notifications.js';
 import { initAutoSync } from './sync.js';
 
@@ -261,6 +261,51 @@ export async function initApp(pageTitle, pageSubtitle) {
   // Render shell immediately with 0 low stock (will update in background)
   renderSidebar(user, 0);
   renderTopbar(pageTitle, pageSubtitle);
+
+  // If in Demo Mode, show a beautiful banner warning at the top of page-content
+  if (isDemoMode()) {
+    const mainEl = document.querySelector('main.page-content');
+    if (mainEl) {
+      const banner = document.createElement('div');
+      banner.id = 'demo-mode-banner';
+      banner.style.cssText = `
+        background: linear-gradient(135deg, var(--primary-700, #1565C0), var(--primary-900, #0D47A1));
+        color: white;
+        padding: 14px 20px;
+        font-size: 13px;
+        border-radius: var(--radius-lg, 12px);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 16px rgba(21, 101, 192, 0.15);
+        gap: 16px;
+        flex-wrap: wrap;
+        z-index: 10;
+        position: relative;
+      `;
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:280px;">
+          <span class="material-symbols-rounded" style="color:#90CAF9;font-size:24px;">explore</span>
+          <div style="line-height:1.5; text-align: left;">
+            <strong style="font-size:14px;display:block;margin-bottom:2px;">โหมดทดลองใช้งาน (Demo Mode)</strong>
+            <span>คุณสามารถทดลอง รับเข้า จ่ายออก ดูคลังและแดชบอร์ดได้ ข้อมูลทั้งหมดจะถูกจำลองและบันทึกในเบราว์เซอร์ของคุณเท่านั้น (ไม่ส่งผลกระทบต่อระบบหลัก)</span>
+          </div>
+        </div>
+        <button id="exit-demo-btn" 
+                style="background:rgba(255,255,255,0.15);color:white;border:none;border-radius:var(--radius-md, 8px);padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;font-family:inherit;"
+                onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+          <span class="material-symbols-rounded" style="font-size:16px;">logout</span>ออกจากโหมดเดโม
+        </button>
+      `;
+      mainEl.insertBefore(banner, mainEl.firstChild);
+      
+      banner.querySelector('#exit-demo-btn').addEventListener('click', () => {
+        logout();
+      });
+    }
+  }
 
   // All Firebase operations run in background — never block UI
   (async () => {

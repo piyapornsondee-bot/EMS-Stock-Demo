@@ -44,6 +44,8 @@ export function setSession(user, remember = false) {
 export function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem('ems_demo_mode');
+  localStorage.removeItem('ems_demo_mode');
 }
 
 export function isLoggedIn() {
@@ -86,6 +88,20 @@ export async function login(email, password, remember = false) {
     user_name:              user.full_name,
   }).catch(() => {});
 
+  return setSession(user, remember);
+}
+
+export function loginDemo(role = 'Administrator', remember = false) {
+  const user = {
+    user_id:   'demo_user',
+    full_name: 'ผู้ทดลองใช้งาน (Demo User)',
+    email:     'demo@ems.local',
+    role:      role,
+  };
+  sessionStorage.setItem('ems_demo_mode', 'true');
+  if (remember) {
+    localStorage.setItem('ems_demo_mode', 'true');
+  }
   return setSession(user, remember);
 }
 

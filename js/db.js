@@ -10,6 +10,107 @@ import {
 
 /* ── Generic helpers ── */
 
+export function isDemoMode() {
+  return sessionStorage.getItem('ems_demo_mode') === 'true' || localStorage.getItem('ems_demo_mode') === 'true';
+}
+
+function getLocalDemoData(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key)) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function setLocalDemoData(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+export function initDemoData() {
+  if (localStorage.getItem('ems_demo_initialized') === 'true') {
+    return;
+  }
+  
+  const now = new Date();
+  const formatISO = d => d.toISOString();
+  
+  const baseItems = [
+    { barcode: 'EMS01', qr_code: 'EMS01', item_name: 'Endotracheal tube No.2.5', category: 'Oxygen & Airway', subcategory: 'Airway', unit: 'ชิ้น', current_stock: 5, minimum_stock: 2, location: 'EMS' },
+    { barcode: 'EMS02', qr_code: 'EMS02', item_name: 'Endotracheal tube No.3', category: 'Oxygen & Airway', subcategory: 'Airway', unit: 'ชิ้น', current_stock: 1, minimum_stock: 2, location: 'EMS' },
+    { barcode: 'EMS03', qr_code: 'EMS03', item_name: 'Endotracheal tube No.3.5', category: 'Oxygen & Airway', subcategory: 'Airway', unit: 'ชิ้น', current_stock: 0, minimum_stock: 2, location: 'EMS' },
+    { barcode: 'EMS04', qr_code: 'EMS04', item_name: 'Endotracheal tube No.4', category: 'Oxygen & Airway', subcategory: 'Airway', unit: 'ชิ้น', current_stock: 8, minimum_stock: 2, location: 'EMS' },
+    { barcode: 'EMS28', qr_code: 'EMS28', item_name: 'อ๊อกซิเยนแคนนูล่า', category: 'Oxygen & Airway', subcategory: 'Airway', unit: 'ชิ้น', current_stock: 15, minimum_stock: 5, location: 'EMS' },
+    { barcode: 'EMS31', qr_code: 'EMS31', item_name: 'สายซักชั่น เบอร์ 6', category: 'Suction Equipment', subcategory: 'Suction', unit: 'ชิ้น', current_stock: 3, minimum_stock: 4, location: 'EMS' },
+    { barcode: 'EMS37', qr_code: 'EMS37', item_name: 'กระบอกฉีดยา 3 ซีซี', category: 'IV & Fluids', subcategory: 'Syringes', unit: 'ชิ้น', current_stock: 25, minimum_stock: 8, location: 'EMS' },
+    { barcode: 'EMS53', qr_code: 'EMS53', item_name: 'ไอ.วี แคทดิเตอร์ เบอร์ 20', category: 'IV & Fluids', subcategory: 'IV Therapy', unit: 'ชิ้น', current_stock: 12, minimum_stock: 8, location: 'EMS' },
+    { barcode: 'EMS64', qr_code: 'EMS64', item_name: 'สำลีก้อนปราศจากเชื้อ (3 ชิ้น)', category: 'Wound Care', subcategory: 'Dressing', unit: 'ซอง', current_stock: 40, minimum_stock: 10, location: 'EMS' },
+    { barcode: 'EMS67', qr_code: 'EMS67', item_name: 'ผ้าพันแผล ขนาด 4 นิ้ว', category: 'Wound Care', subcategory: 'Dressing', unit: 'ม้วน', current_stock: 6, minimum_stock: 10, location: 'EMS' },
+    { barcode: 'EMS77', qr_code: 'EMS77', item_name: 'หน้ากากอนามัย 3 ชั้น', category: 'PPE', subcategory: 'Protection', unit: 'กล่อง', current_stock: 18, minimum_stock: 5, location: 'EMS' },
+    { barcode: 'EMS87', qr_code: 'EMS87', item_name: 'แอลกอฮอล์แผ่น (Alcohol Pad)', category: 'Other', subcategory: 'Disinfection', unit: 'กล่อง', current_stock: 2, minimum_stock: 3, location: 'EMS' },
+    { barcode: 'EMS94', qr_code: 'EMS94', item_name: 'แถบตรวจน้ำตาลในเลือด', category: 'Cardiac Equipment', subcategory: 'Monitoring', unit: 'กล่อง', current_stock: 10, minimum_stock: 5, location: 'EMS' }
+  ];
+
+  const items = baseItems.map((item, idx) => ({
+    ...item,
+    item_id: 'demo_item_' + (idx + 1),
+    created_date: formatISO(now),
+    updated_date: formatISO(now),
+    item_image: ''
+  }));
+
+  const txs = [];
+  const txTypes = ['Receive', 'Issue'];
+  for (let i = 6; i >= 0; i--) {
+    const txDate = new Date();
+    txDate.setDate(now.getDate() - i);
+    
+    const count = 2 + Math.floor(Math.random() * 3);
+    for (let j = 0; j < count; j++) {
+      const item = items[Math.floor(Math.random() * items.length)];
+      const type = txTypes[Math.floor(Math.random() * txTypes.length)];
+      const qty = 1 + Math.floor(Math.random() * 5);
+      
+      txDate.setHours(9 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 60), 0, 0);
+      
+      txs.push({
+        transaction_id: 'demo_tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        datetime: formatISO(txDate),
+        item_id: item.item_id,
+        barcode: item.barcode,
+        item_name: item.item_name,
+        transaction_type: type,
+        quantity: qty,
+        location: 'EMS',
+        balance_after_transaction: type === 'Receive' ? item.current_stock + qty : Math.max(0, item.current_stock - qty),
+        user_name: 'ผู้ทดลองใช้งาน (Demo User)',
+        remarks: type === 'Receive' ? 'รับเข้าเพื่อจัดเตรียมสำรองคลัง' : 'จ่ายออกเพื่อใช้งานในรถฉุกเฉิน'
+      });
+    }
+  }
+
+  txs.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+  const lowStockItems = items.filter(i => i.current_stock <= i.minimum_stock);
+  const notifications = lowStockItems.map((item, idx) => ({
+    notification_id: 'demo_notif_' + (idx + 1),
+    item_id: item.item_id,
+    notification_type: 'low_stock',
+    message: `${item.item_name} (${item.location}) มีสต๊อกต่ำ: ${item.current_stock} ${item.unit} (ขั้นต่ำ: ${item.minimum_stock})`,
+    datetime: formatISO(now),
+    status: 'unread'
+  }));
+
+  localStorage.setItem('ems_demo_items', JSON.stringify(items));
+  localStorage.setItem('ems_demo_transactions', JSON.stringify(txs));
+  localStorage.setItem('ems_demo_notifications', JSON.stringify(notifications));
+  localStorage.setItem('ems_demo_checklists', JSON.stringify([]));
+  localStorage.setItem('ems_demo_settings', JSON.stringify({}));
+  localStorage.setItem('ems_demo_users', JSON.stringify([
+    { user_id: 'demo_user', full_name: 'ผู้ทดลองใช้งาน (Demo User)', email: 'demo@ems.local', role: 'Administrator', active: true }
+  ]));
+  localStorage.setItem('ems_demo_initialized', 'true');
+}
+
 // Helper to convert snapshot to array and inject document ID
 function snapshotToArray(snapshot, idField) {
   const arr = [];
@@ -22,10 +123,22 @@ function snapshotToArray(snapshot, idField) {
 }
 
 export async function getSetting(key) {
+  if (isDemoMode()) {
+    initDemoData();
+    const settings = getLocalDemoData('ems_demo_settings');
+    return settings[key] !== undefined ? settings[key] : null;
+  }
   const docSnap = await getDoc(doc(db, 'settings', key));
   return docSnap.exists() ? docSnap.data().value : null;
 }
 export async function setSetting(key, value) {
+  if (isDemoMode()) {
+    initDemoData();
+    const settings = getLocalDemoData('ems_demo_settings');
+    settings[key] = value;
+    localStorage.setItem('ems_demo_settings', JSON.stringify(settings));
+    return;
+  }
   await setDoc(doc(db, 'settings', key), { value });
 }
 
@@ -108,6 +221,10 @@ const HOUSEKEEPING_SEED_ITEMS = [
 
 /* ── Seed Data ── */
 export async function seedDatabase() {
+  if (isDemoMode()) {
+    initDemoData();
+    return;
+  }
   const coll = collection(db, 'users');
   const snapshot = await getCountFromServer(coll);
   const count = snapshot.data().count;
@@ -298,6 +415,15 @@ export async function seedDatabase() {
 
 /* ── Item Helpers ── */
 export async function getAllItems() {
+  if (isDemoMode()) {
+    initDemoData();
+    const items = getLocalDemoData('ems_demo_items');
+    return items.sort((a, b) => {
+      const codeA = a.barcode || '';
+      const codeB = b.barcode || '';
+      return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+  }
   const snapshot = await getDocs(collection(db, 'items'));
   const items = snapshotToArray(snapshot, 'item_id');
   return items.sort((a, b) => {
@@ -308,6 +434,11 @@ export async function getAllItems() {
 }
 
 export async function getItemById(id) {
+  if (isDemoMode()) {
+    initDemoData();
+    const items = getLocalDemoData('ems_demo_items');
+    return items.find(i => i.item_id === id) || null;
+  }
   if (!id) return null;
   const docSnap = await getDoc(doc(db, 'items', id.toString()));
   if (docSnap.exists()) {
@@ -317,6 +448,11 @@ export async function getItemById(id) {
 }
 
 export async function getItemByBarcode(barcode) {
+  if (isDemoMode()) {
+    initDemoData();
+    const items = getLocalDemoData('ems_demo_items');
+    return items.find(i => i.barcode === barcode || i.qr_code === barcode) || null;
+  }
   const q = query(collection(db, 'items'), where('barcode', '==', barcode));
   const snapshot = await getDocs(q);
   if (!snapshot.empty) {
@@ -337,6 +473,25 @@ export async function saveItem(item) {
   item.updated_date = new Date().toISOString();
   if (!item.created_date) item.created_date = item.updated_date;
   
+  if (isDemoMode()) {
+    initDemoData();
+    const items = getLocalDemoData('ems_demo_items');
+    if (item.item_id) {
+      const idx = items.findIndex(i => i.item_id === item.item_id);
+      if (idx !== -1) {
+        items[idx] = { ...items[idx], ...item };
+      }
+      setLocalDemoData('ems_demo_items', items);
+      return item.item_id;
+    } else {
+      const newId = 'demo_item_' + Date.now();
+      const newItem = { ...item, item_id: newId };
+      items.push(newItem);
+      setLocalDemoData('ems_demo_items', items);
+      return newId;
+    }
+  }
+  
   if (item.item_id) {
     const id = item.item_id.toString();
     const data = { ...item };
@@ -350,6 +505,13 @@ export async function saveItem(item) {
 }
 
 export async function deleteItem(id) {
+  if (isDemoMode()) {
+    initDemoData();
+    let items = getLocalDemoData('ems_demo_items');
+    items = items.filter(i => i.item_id !== id);
+    setLocalDemoData('ems_demo_items', items);
+    return;
+  }
   if (!id) return;
   await deleteDoc(doc(db, 'items', id.toString()));
 }
@@ -361,6 +523,11 @@ export async function getLowStockItems() {
 
 /* ── Transaction Helpers ── */
 export async function getItemByBarcodeAndLocation(barcode, location) {
+  if (isDemoMode()) {
+    initDemoData();
+    const items = getLocalDemoData('ems_demo_items');
+    return items.find(i => i.barcode === barcode && i.location === location) || null;
+  }
   if (!barcode || !location) return null;
   const q = query(
     collection(db, 'items'),
@@ -377,6 +544,118 @@ export async function getItemByBarcodeAndLocation(barcode, location) {
 
 export async function addTransaction(txObj) {
   txObj.datetime = new Date().toISOString();
+  
+  if (isDemoMode()) {
+    initDemoData();
+    let targetItemId = txObj.item_id;
+    let balanceAfter = 0;
+    let itemToNotify = null;
+    
+    let items = getLocalDemoData('ems_demo_items');
+    
+    if (txObj.transaction_type === 'Receive') {
+      let item = items.find(i => i.barcode === txObj.barcode && i.location === txObj.location);
+      if (item) {
+        item.current_stock += Number(txObj.quantity);
+        item.updated_date = txObj.datetime;
+        targetItemId = item.item_id;
+        balanceAfter = item.current_stock;
+        itemToNotify = item;
+      } else {
+        const originalItem = items.find(i => i.item_id === txObj.item_id);
+        if (originalItem) {
+          const newId = 'demo_item_' + Date.now();
+          const newItem = {
+            ...originalItem,
+            item_id: newId,
+            location: txObj.location,
+            current_stock: Number(txObj.quantity),
+            created_date: txObj.datetime,
+            updated_date: txObj.datetime
+          };
+          items.push(newItem);
+          targetItemId = newId;
+          balanceAfter = Number(txObj.quantity);
+          itemToNotify = newItem;
+        }
+      }
+    } else if (txObj.transaction_type === 'Issue') {
+      let item = items.find(i => i.barcode === txObj.barcode && i.location === txObj.location);
+      if (item) {
+        item.current_stock -= Number(txObj.quantity);
+        if (item.current_stock < 0) item.current_stock = 0;
+        item.updated_date = txObj.datetime;
+        targetItemId = item.item_id;
+        balanceAfter = item.current_stock;
+        itemToNotify = item;
+      }
+    } else if (txObj.transaction_type === 'Adjust') {
+      let item = items.find(i => i.item_id === txObj.item_id);
+      if (item) {
+        item.current_stock += Number(txObj.quantity);
+        if (item.current_stock < 0) item.current_stock = 0;
+        item.updated_date = txObj.datetime;
+        targetItemId = item.item_id;
+        balanceAfter = item.current_stock;
+        itemToNotify = item;
+      }
+    } else if (txObj.transaction_type === 'Transfer') {
+      let sourceItem = items.find(i => i.barcode === txObj.barcode && i.location === txObj.location);
+      if (sourceItem) {
+        sourceItem.current_stock -= Number(txObj.quantity);
+        if (sourceItem.current_stock < 0) sourceItem.current_stock = 0;
+        sourceItem.updated_date = txObj.datetime;
+        itemToNotify = sourceItem;
+      }
+      
+      let targetItem = items.find(i => i.barcode === txObj.barcode && i.location === txObj.target_location);
+      if (targetItem) {
+        targetItem.current_stock += Number(txObj.quantity);
+        targetItem.updated_date = txObj.datetime;
+        targetItemId = targetItem.item_id;
+        balanceAfter = targetItem.current_stock;
+      } else if (sourceItem) {
+        const newId = 'demo_item_' + Date.now();
+        const newItem = {
+          ...sourceItem,
+          item_id: newId,
+          location: txObj.target_location,
+          current_stock: Number(txObj.quantity),
+          created_date: txObj.datetime,
+          updated_date: txObj.datetime
+        };
+        items.push(newItem);
+        targetItemId = newId;
+        balanceAfter = Number(txObj.quantity);
+      }
+    }
+    
+    setLocalDemoData('ems_demo_items', items);
+    
+    txObj.item_id = targetItemId;
+    txObj.balance_after_transaction = balanceAfter;
+    
+    const txs = getLocalDemoData('ems_demo_transactions');
+    const txId = 'demo_tx_' + Date.now();
+    const newTx = { ...txObj, transaction_id: txId };
+    txs.unshift(newTx);
+    setLocalDemoData('ems_demo_transactions', txs);
+    
+    if (itemToNotify && itemToNotify.current_stock <= itemToNotify.minimum_stock) {
+      const notifications = getLocalDemoData('ems_demo_notifications');
+      notifications.unshift({
+        notification_id: 'demo_notif_' + Date.now(),
+        item_id: itemToNotify.item_id,
+        notification_type: 'low_stock',
+        message: `${itemToNotify.item_name} (${itemToNotify.location}) มีสต๊อกต่ำ: ${itemToNotify.current_stock} ${itemToNotify.unit} (ขั้นต่ำ: ${itemToNotify.minimum_stock})`,
+        datetime: txObj.datetime,
+        status: 'unread'
+      });
+      setLocalDemoData('ems_demo_notifications', notifications);
+    }
+    
+    return txId;
+  }
   
   let targetItemId = txObj.item_id;
   let balanceAfter = 0;
@@ -501,6 +780,10 @@ export async function addTransaction(txObj) {
 }
 
 export async function getAllTransactions() {
+  if (isDemoMode()) {
+    initDemoData();
+    return getLocalDemoData('ems_demo_transactions');
+  }
   const q = query(collection(db, 'transactions'), orderBy('datetime', 'desc'));
   const snapshot = await getDocs(q);
   return snapshotToArray(snapshot, 'transaction_id');
@@ -508,10 +791,19 @@ export async function getAllTransactions() {
 
 /* ── User Helpers ── */
 export async function getAllUsers() {
+  if (isDemoMode()) {
+    initDemoData();
+    return getLocalDemoData('ems_demo_users');
+  }
   const snapshot = await getDocs(collection(db, 'users'));
   return snapshotToArray(snapshot, 'user_id');
 }
 export async function getUserByEmail(email) {
+  if (isDemoMode()) {
+    initDemoData();
+    const users = getLocalDemoData('ems_demo_users');
+    return users.find(u => u.email === email) || null;
+  }
   const q = query(collection(db, 'users'), where('email', '==', email));
   const snapshot = await getDocs(q);
   if (!snapshot.empty) {
@@ -521,6 +813,23 @@ export async function getUserByEmail(email) {
   return null;
 }
 export async function saveUser(user) {
+  if (isDemoMode()) {
+    initDemoData();
+    const users = getLocalDemoData('ems_demo_users');
+    if (user.user_id) {
+      const idx = users.findIndex(u => u.user_id === user.user_id);
+      if (idx !== -1) {
+        users[idx] = { ...users[idx], ...user };
+      }
+      setLocalDemoData('ems_demo_users', users);
+      return user.user_id;
+    } else {
+      const newId = 'demo_user_' + Date.now();
+      users.push({ ...user, user_id: newId });
+      setLocalDemoData('ems_demo_users', users);
+      return newId;
+    }
+  }
   if (user.user_id) {
     const id = user.user_id.toString();
     const data = { ...user };
@@ -533,18 +842,38 @@ export async function saveUser(user) {
   }
 }
 export async function deleteUser(id) {
+  if (isDemoMode()) {
+    initDemoData();
+    let users = getLocalDemoData('ems_demo_users');
+    users = users.filter(u => u.user_id !== id);
+    setLocalDemoData('ems_demo_users', users);
+    return;
+  }
   if (!id) return;
   await deleteDoc(doc(db, 'users', id.toString()));
 }
 
 /* ── Notification Helpers ── */
 export async function getUnreadNotifications() {
+  if (isDemoMode()) {
+    initDemoData();
+    const notifications = getLocalDemoData('ems_demo_notifications');
+    const unread = notifications.filter(n => n.status === 'unread');
+    return unread.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+  }
   const q = query(collection(db, 'notifications'), where('status', '==', 'unread'));
   const snapshot = await getDocs(q);
   const arr = snapshotToArray(snapshot, 'notification_id');
   return arr.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 }
 export async function markAllNotificationsRead() {
+  if (isDemoMode()) {
+    initDemoData();
+    const notifications = getLocalDemoData('ems_demo_notifications');
+    notifications.forEach(n => { n.status = 'read'; });
+    setLocalDemoData('ems_demo_notifications', notifications);
+    return;
+  }
   const q = query(collection(db, 'notifications'), where('status', '==', 'unread'));
   const snapshot = await getDocs(q);
   const batch = writeBatch(db);
@@ -556,6 +885,23 @@ export async function markAllNotificationsRead() {
 
 /* ── Checklist Helpers ── */
 export async function saveChecklist(data) {
+  if (isDemoMode()) {
+    initDemoData();
+    const checklists = getLocalDemoData('ems_demo_checklists');
+    if (data.checklist_id) {
+      const idx = checklists.findIndex(c => c.checklist_id === data.checklist_id);
+      if (idx !== -1) {
+        checklists[idx] = { ...checklists[idx], ...data };
+      }
+      setLocalDemoData('ems_demo_checklists', checklists);
+      return data.checklist_id;
+    } else {
+      const newId = 'demo_checklist_' + Date.now();
+      checklists.push({ ...data, checklist_id: newId });
+      setLocalDemoData('ems_demo_checklists', checklists);
+      return newId;
+    }
+  }
   if (data.checklist_id) {
     const id = data.checklist_id.toString();
     const d = { ...data };
@@ -568,6 +914,11 @@ export async function saveChecklist(data) {
   }
 }
 export async function getChecklistByDate(date, location) {
+  if (isDemoMode()) {
+    initDemoData();
+    const checklists = getLocalDemoData('ems_demo_checklists');
+    return checklists.find(c => c.date === date && c.location === location) || null;
+  }
   const q = query(collection(db, 'checklists'), where('date', '==', date), where('location', '==', location));
   const snapshot = await getDocs(q);
   if (!snapshot.empty) {
@@ -577,6 +928,11 @@ export async function getChecklistByDate(date, location) {
   return null;
 }
 export async function getAllChecklists() {
+  if (isDemoMode()) {
+    initDemoData();
+    const checklists = getLocalDemoData('ems_demo_checklists');
+    return checklists.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
   const q = query(collection(db, 'checklists'), orderBy('date', 'desc'));
   const snapshot = await getDocs(q);
   return snapshotToArray(snapshot, 'checklist_id');
@@ -584,11 +940,34 @@ export async function getAllChecklists() {
 
 /* ── Generic Helpers for Sync.js ── */
 export async function dbGetAll(colName) {
+  if (isDemoMode()) {
+    initDemoData();
+    return getLocalDemoData('ems_demo_' + colName);
+  }
   const snapshot = await getDocs(collection(db, colName));
   return snapshotToArray(snapshot, 'id');
 }
 export async function dbPut(colName, data) {
-  // Try to determine ID field (dirty fallback for sync.js)
+  if (isDemoMode()) {
+    initDemoData();
+    const items = getLocalDemoData('ems_demo_' + colName);
+    const idField = data.id ? 'id' : (data.item_id ? 'item_id' : null);
+    if (idField && data[idField]) {
+      const idx = items.findIndex(i => i[idField] === data[idField]);
+      if (idx !== -1) {
+        items[idx] = { ...items[idx], ...data };
+      }
+      setLocalDemoData('ems_demo_' + colName, items);
+      return data[idField];
+    } else {
+      const newId = 'demo_' + colName + '_' + Date.now();
+      const finalIdField = idField || 'id';
+      const newItem = { ...data, [finalIdField]: newId };
+      items.push(newItem);
+      setLocalDemoData('ems_demo_' + colName, items);
+      return newId;
+    }
+  }
   const idField = data.id ? 'id' : (data.item_id ? 'item_id' : null);
   if (idField && data[idField]) {
     const id = data[idField].toString();
@@ -603,6 +982,15 @@ export async function dbPut(colName, data) {
 }
 
 export async function dbAdd(colName, data) {
+  if (isDemoMode()) {
+    initDemoData();
+    const items = getLocalDemoData('ems_demo_' + colName);
+    const newId = 'demo_' + colName + '_' + Date.now();
+    const newItem = { ...data, id: newId };
+    items.push(newItem);
+    setLocalDemoData('ems_demo_' + colName, items);
+    return newId;
+  }
   const docRef = await addDoc(collection(db, colName), data);
   return docRef.id;
 }

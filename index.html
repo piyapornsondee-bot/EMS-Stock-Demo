@@ -152,6 +152,14 @@
             <button type="submit" class="btn btn-primary btn-lg w-full" id="login-btn">
               <span class="material-symbols-rounded">login</span>เข้าสู่ระบบ
             </button>
+            <div style="display:flex;align-items:center;margin:18px 0;color:var(--text-muted);font-size:11px;">
+              <span style="flex:1;height:1px;background:var(--border-light);opacity:0.6;"></span>
+              <span style="padding:0 10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">หรือ</span>
+              <span style="flex:1;height:1px;background:var(--border-light);opacity:0.6;"></span>
+            </div>
+            <button type="button" class="btn btn-outline btn-lg w-full" id="login-demo-btn" style="border-color:var(--primary-300);color:var(--primary-700);display:flex;align-items:center;justify-content:center;gap:8px;">
+              <span class="material-symbols-rounded" style="color:var(--primary-600);">explore</span>ทดลองใช้งาน (Demo Mode)
+            </button>
           </form>
         </div>
 
@@ -295,7 +303,7 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    import { login, isLoggedIn } from './js/auth.js';
+    import { login, isLoggedIn, loginDemo } from './js/auth.js';
     import { openDB, seedDatabase, getUserByEmail, dbAdd, saveUser } from './js/db.js';
     import { toast } from './js/notifications.js';
 
@@ -417,6 +425,14 @@
         form.style.animation = 'none';
         setTimeout(() => { form.style.animation = 'shake 0.4s ease'; }, 10);
       }
+    });
+
+    // ── Demo login ──
+    document.getElementById('login-demo-btn')?.addEventListener('click', () => {
+      const remember = document.getElementById('remember-me').checked;
+      loginDemo('Administrator', remember);
+      toast.success('เข้าสู่ระบบสำเร็จ (Demo Mode)', 'กำลังนำไปยัง Dashboard...');
+      setTimeout(() => { window.location.href = 'pages/dashboard.html'; }, 800);
     });
 
     // ── Register form ──
